@@ -2,20 +2,39 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: "JetBrains Mono", monospace, sans-serif;
 }
 
 :root {
     --ink: #1c1917;
-    --paper: #faf6f0;
-    --accent: #d95d39;
-    --accent-dark: #a8442a;
-    --line: #e3d9c9;
-    --text-muted: #6b6459;
+    --paper: #f2ebde;
+    --card: #fffdf9;
+    --accent: #505b3e;
+    --accent-dark: #505746;
+    --line: #dbd4c9;
+    --text-muted: #6b675f;
     --radius: 4px;
 }
 
+[data-theme="dark"] {
+    --ink: #f1eee7;
+    --paper: #1c1c1a;
+    --card: #262623;
+    --accent: #a8b092;
+    --accent-dark: #858f70;
+    --line: #393934;
+    --text-muted: #aaa79f;
+}
+
+[data-theme="dark"] .github-icon {
+    filter: brightness(0) invert(1);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
 body {
-    font-family: "JetBrains Mono", monospace;
     color: var(--ink);
     background-color: var(--paper);
     line-height: 1.6;
@@ -23,6 +42,10 @@ body {
 
 h2 {
     font-size: clamp(2rem, 4vw, 2.8rem);
+}
+
+main {
+    padding-top: 80px;
 }
 
 .container {
@@ -33,6 +56,12 @@ h2 {
 
 .site-header {
     border-bottom: 1px solid var(--line);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background-color: var(--paper);
 }
 
 .site-header .container {
@@ -72,6 +101,18 @@ h2 {
     font-size: 1.2rem;
     cursor: pointer;
     color: var(--ink);
+}
+
+.theme-toggle {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    padding: 12px 18px;
+    border: 1px solid var(--line);
+    border-radius: var(--line);
+    background-color: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
 }
 
 .hero {
@@ -159,8 +200,7 @@ h2 {
     grid-area: photo;
     align-self: center;
     position: relative;
-    width: 80%;
-    transform: translate(30px, 0px);
+    width: 100%;
 }
 
 .avatar {
@@ -290,7 +330,7 @@ h2 {
     border: 1px solid var(--line);
     border-radius: var(--radius);
     padding: 20px;
-    background-color: #ffffff;
+    background-color: var(--card);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
