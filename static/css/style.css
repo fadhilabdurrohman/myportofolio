@@ -60,6 +60,20 @@ h2 {
     font-size: 0.95rem;
 }
 
+.menu-toggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 0.4rem 0.7rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--ink);
+}
+
 .hero {
     padding: 4.5rem 0 5rem;
 }
@@ -157,6 +171,7 @@ h2 {
     aspect-ratio: 1 / 1;
     object-fit: cover;
     border-radius: var(--radius);
+    border: 2px solid var(--ink)
 }
 
 .about, .skills, .projects, .experience {
@@ -299,6 +314,10 @@ h2 {
     font-weight: 700;
 }
 
+.projects-description, .experience-description {
+    text-align: justify;
+}
+
 .experience-meta {
     display: flex;
     flex-direction: column;
@@ -328,6 +347,47 @@ h2 {
 }
 
 @media (max-width: 600px) {
+    .site-header .container {
+        position: relative;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .site-header nav {
+        position: absolute;
+        top: 100%;
+        right: 1.5rem;
+        flex-direction: column;
+        gap: 0;
+        min-width: 160px;
+        background-color: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 0.5rem;
+        z-index: 10;
+        max-height: 0;
+        opacity: 0;
+        padding: 0 0.5rem;
+        overflow: hidden;
+        pointer-events: none;
+        transform: translateY(-8px);
+        transition: max-height 0.3s ease, opacity 0.25s ease, transform 0.25s ease, padding 0.3s ease;
+    }
+
+    .site-header nav.active {
+        max-height: 300px;
+        opacity: 1;
+        padding: 0.5rem;
+        pointer-events: auto;
+        transform: translateY(0);
+    }
+
+    .site-header nav a {
+        padding: 0.7rem 1rem;
+    }
+
     .hero-grid {
         grid-template-columns: 1fr;
         grid-template-areas:
@@ -353,5 +413,9 @@ h2 {
     .about-content {
         grid-template-columns: 1fr;
         gap: 20px;
+    }
+
+    .skills-list {
+        grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
     }
 }
