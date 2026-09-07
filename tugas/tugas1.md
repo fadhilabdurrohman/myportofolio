@@ -4,7 +4,7 @@
 
 > 1. Pada Tutorial dan Tugas 1, Anda diberi kebebasan untuk menentukan tampilan dari website portofolio Anda. Saat Anda merancang struktur HTML yang digunakan, apakah Anda menggunakan elemen semantik HTML5 seperti '<section>', <article>, atau <aside>? Jika iya, bagaimana elemen tersebut membantu Anda dalam membuat static web? Jika tidak, mengapa tanpa elemen tersebut sudah memenuhi kebutuhan desain Anda?
 
-**Ya**, saya menggunakan beberapa semantik HTML5, seperti '<section>' dan '<article>'. Tag '<section>' banyak saya gunakan untuk membagi halaman saya menjadi beberapa bagian/tema, seperti About, Skills, Projects, Experiences. Tag '<article>' saya gunakan untuk mengelompokkan beberapa item/konten yang berdiri sendiri, dalam kode saya, saya menerapkannya untuk setiap item pada bagian Projects dan Experiences.
+**Ya**, saya menggunakan beberapa semantik HTML5, seperti `<section>` dan `<article>`. Tag `<section>` banyak saya gunakan untuk membagi halaman saya menjadi beberapa bagian/tema, seperti About, Skills, Projects, Experiences. Tag `<article>` saya gunakan untuk mengelompokkan beberapa item/konten yang berdiri sendiri, dalam kode saya, saya menerapkannya untuk setiap item pada bagian Projects dan Experiences.
 
 Menggunakan elemen-elemen tersebut membantu saya mengorganisir struktur HTML sehingga saya lebih mudah dalam memahami isi kode saya. Selain itu, hal tersebut juga membantu saya dalam mendesain bagian bagian tertentu dengan CSS. Tak hanya itu, menerapkan semantik HTML yang baik membantu meningkatkan aksesibilitas dan mengoptimalkan SEO (_Search engine Optimization_).
 
