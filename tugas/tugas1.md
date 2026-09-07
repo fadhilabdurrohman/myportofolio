@@ -23,14 +23,14 @@ Karena masih berupa _static web_, banyak informasi di dalam website masih berupa
 
 Saya menggunakan ChatGPT dalam membantu saya memahami materi terkait minggu ini. Namun, saya tidak menjadikan AI sebagai tools yang menulis kode saya seluruhnya. Saya jadikan AI sebagai sarana dan media saya **belajar dan bertanya, memberikan contoh kode, referensi, dan memberikan feedback bagi kode saya**. Kode yang saya tulis beserta desainnya berasal dari referensi pribadi. Saya sadar, AI tentu saja banyak sekali membuat kesalahan, apalagi yang saya gunakan adalah yang gratisan :v. Tak hanya itu, jika menulis keseluruhan kode dengan AI tanpa memahami apa yang di-_generate_ oleh AI, saya rasa tidak perlu ada mata kuliah Pemrograman Berbasis Platform. Saya setuju AI sangat membantu dan memberikan keefesienan dalam membuat suatu program, tetapi bagi seorang yang masih belajar (seperti saya tentunya), saya rasa sebaiknya AI dijadikan teman diskusi dan membantu melatih pemahaman, bukan hanya sekedar _copy paste_.
 
-## Penggunaan AI
+- [Log percakapan ChatGPT](https://chatgpt.com/share/6a9eb038-1128-83ec-93a7-a98ab612a245)
+- [Log percakapan ChatGPT 2](https://chatgpt.com/c/6a9ac43d-ddb4-83ec-bc7b-b7a8a2d14dc7)
+
+### Penggunaan AI
 
 - Membantu memahami semantik HTML dan CSS
 - Membantu memberikan referensi terkait desain web
 - Membantu membuat _Humberger menu_ untuk perangkat mobile (banyak hasil kode yang tidak sesuai ekspektasi, sehingga kode harus diperiksa secara manual)
-
-- [Log percakapan ChatGPT](https://chatgpt.com/share/6a9eb038-1128-83ec-93a7-a98ab612a245)
-- [Log percakapan ChatGPT 2](https://chatgpt.com/c/6a9ac43d-ddb4-83ec-bc7b-b7a8a2d14dc7)
 
 ## Referensi
 
