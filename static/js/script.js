@@ -1,7 +1,9 @@
+// Select elements  
 const menuToggle = document.querySelector(".menu-toggle");
 const siteNav = document.querySelector(".site-header nav");
 const themeToggle = document.querySelector(".theme-toggle");
 
+// Toggle mobile navigation menu
 menuToggle.addEventListener("click", () => {
     siteNav.classList.toggle("active");
 
@@ -12,6 +14,7 @@ menuToggle.addEventListener("click", () => {
     }
 });
 
+// Toggle dark mode
 themeToggle.addEventListener("click", () => {
     const isDark = document.documentElement.getAttribute("data-theme") === "dark";
 

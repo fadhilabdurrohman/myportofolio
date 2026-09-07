@@ -1,3 +1,4 @@
+/* Global styles */
 * {
     margin: 0;
     padding: 0;
@@ -5,6 +6,7 @@
     font-family: "JetBrains Mono", monospace, sans-serif;
 }
 
+/* Theme variables */
 :root {
     --ink: #1c1917;
     --paper: #f2ebde;
@@ -30,8 +32,13 @@
     filter: brightness(0) invert(1);
 }
 
+/* Base elements */
 html {
     scroll-behavior: smooth;
+}
+
+header, body, section, .card, .theme-toggle {
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 body {
@@ -54,6 +61,7 @@ main {
     padding: 0 1.5rem;
 }
 
+/* Header and navigation */
 .site-header {
     border-bottom: 1px solid var(--line);
     position: fixed;
@@ -89,6 +97,11 @@ main {
     font-size: 0.95rem;
 }
 
+.site-header nav a:hover {
+    color: var(--accent)
+}
+
+/* Menu and theme toggle */
 .menu-toggle {
     display: none;
     width: 40px;
@@ -103,6 +116,10 @@ main {
     color: var(--ink);
 }
 
+.menu-toggle:hover {
+    color: var(--accent);
+}
+
 .theme-toggle {
     position: fixed;
     right: 24px;
@@ -115,6 +132,13 @@ main {
     cursor: pointer;
 }
 
+.theme-toggle:hover {
+    background-color: var(--ink);
+    color: var(--paper);
+    transition: background-color 0.2s ease;
+}
+
+/* Hero section */
 .hero {
     padding: 4.5rem 0 5rem;
 }
@@ -156,6 +180,7 @@ main {
     margin-bottom: 1.5rem;
 }
 
+/* Profile information */
 .meta-list {
     display: flex;
     gap: 2rem;
@@ -196,6 +221,7 @@ main {
     background-color: var(--accent);
 }
 
+/* Profile photo */
 .hero-photo {
     grid-area: photo;
     align-self: center;
@@ -214,10 +240,12 @@ main {
     border: 2px solid var(--ink)
 }
 
+/* General sections */
 .about, .skills, .projects, .experience {
     padding: 60px 0;
 }
 
+/* About section */
 .about-grid {
     display: grid;
     gap: 5px;
@@ -244,6 +272,7 @@ main {
     font-size: 1.05rem;
 }
 
+/* Education */
 .education h3 {
     font-size: 1.6rem;
 }
@@ -292,6 +321,7 @@ main {
     font-size: 0.95rem;
 }
 
+/* Skills section */
 .skills-identity, .projects-identity, .experience-identity {
     text-align: center;
     margin-bottom: 20px;
@@ -321,6 +351,7 @@ main {
     transform: scale(1.2);
 }
 
+/* Projects and experiences sections*/
 .projects-content, .experience-content  {
     display: grid;
     gap: 10px;
@@ -386,7 +417,9 @@ main {
     border-top: 1px solid var(--line);
 }
 
+/* Responsive design (mobile) */
 @media (max-width: 600px) {
+    /* Mobile header */
     .site-header .container {
         position: relative;
     }
@@ -406,7 +439,6 @@ main {
         border: 1px solid var(--line);
         border-radius: var(--radius);
         padding: 0.5rem;
-        z-index: 10;
         max-height: 0;
         opacity: 0;
         padding: 0 0.5rem;
@@ -416,6 +448,7 @@ main {
         transition: max-height 0.3s ease, opacity 0.25s ease, transform 0.25s ease, padding 0.3s ease;
     }
 
+    /* Mobile navigations */
     .site-header nav.active {
         max-height: 300px;
         opacity: 1;
@@ -428,6 +461,7 @@ main {
         padding: 0.7rem 1rem;
     }
 
+    /* Mobile hero */
     .hero-grid {
         grid-template-columns: 1fr;
         grid-template-areas:
@@ -446,6 +480,7 @@ main {
         justify-content: flex-start;
     }
 
+    /* Mobile about */
     .about-info h3 {
         font-size: 3.8rem;
     }
@@ -455,6 +490,7 @@ main {
         gap: 20px;
     }
 
+    /* Mobile skills */
     .skills-list {
         grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
     }
