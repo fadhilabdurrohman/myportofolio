@@ -19,4 +19,4 @@ Website ini menampilkan ringkasan tentang diri saya, kemampuan, proyek, serta pe
 
 ## Tugas Refleksi
 
-- [Tugas refleksi 1](https://github.com/fadhilabdurrohman/myportofolio/tugas/tugas1.md)
+- [Tugas refleksi 1](./tugas/tugas1.md)
