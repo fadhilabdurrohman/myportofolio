@@ -41,20 +41,20 @@
                 </div>
 
                 <div class="project-content">
-                {% for project in project_list %}
-                    <article class="project-item">
-                        <div class="project-info">
-                            <h2>{{ project.title }}</h2>
-                            <span class="project-year">{{ project.year }}</span>
-                        </div>
-                        <div class="project-detail">
-                            <p class="project-type">{{ project.project_type }}</p>
-                            <p class="project-description">{{ project.description }}</p>
-                        </div>
-                    </article>
-                {% empty %}
-                    <p class="empty-state">No project added yet.</p>
-                {% endfor %}
+                    {% for project in project_list %}
+                        <article class="project-item">
+                            <div class="project-info">
+                                <h2>{{ project.title }}</h2>
+                                <span class="project-year">{{ project.year }}</span>
+                            </div>
+                            <div class="project-detail">
+                                <p class="project-type">{{ project.project_type }}</p>
+                                <p class="project-description">{{ project.description }}</p>
+                            </div>
+                        </article>
+                    {% empty %}
+                        <p class="empty-state">No project added yet.</p>
+                    {% endfor %}
                 </div>
             </div>
         </section>

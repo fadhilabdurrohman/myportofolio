@@ -335,14 +335,24 @@ main {
 .skill-list {
     list-style: none;
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
 }
 
 .skill-item {
     display: flex;
-    justify-content: center;
     align-items: center;
+    gap: 15px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px;
+    background-color: var(--card);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.skill-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
 .skill-item img {
@@ -350,10 +360,6 @@ main {
     height: 72px;
     object-fit: contain;
     transition: transform 0.2s ease;
-}
-
-.skill-item:hover img {
-    transform: scale(1.2);
 }
 
 /* Projects and experiences sections*/

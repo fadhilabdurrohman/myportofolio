@@ -7,7 +7,7 @@ class Education(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     institution = models.CharField(max_length=255)
     program = models.CharField(max_length=255)
-    started_at = models.DateField(auto_now_add=True)
+    started_at = models.DateField()
     ended_at = models.DateField(blank=True, null=True)
 
     def __str__(self):
@@ -30,7 +30,7 @@ class Education(models.Model):
 class Skill(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
-    icon = models.URLField(blank=True, null=True)
+    icon = models.CharField(max_length=255)
     url = models.URLField(blank=True, null=True)
 
     def __str__(self):
@@ -41,7 +41,7 @@ class Project(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     year = models.IntegerField()
-    project_type = models.CharField()
+    project_type = models.CharField(max_length=255)
     url = models.URLField(blank=True, null=True)
     thumbnail = models.URLField(blank=True, null=True)
 
@@ -64,7 +64,7 @@ class Experience(models.Model):
     description = models.TextField()
     category = models.CharField(max_length=20, choices=EXPERIENCE_CHOICES, default='full-time')
     thumbnail = models.URLField(blank=True, null=True)
-    started_at = models.DateField(auto_now_add=True)
+    started_at = models.DateField()
     ended_at = models.DateField(blank=True, null=True)
 
     def __str__(self):
