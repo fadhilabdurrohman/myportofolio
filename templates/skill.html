@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Experience - {{ name }}</title>
+    <title>Project - {{ name }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="icon" type="image/png" href="/static/img/profile/rin-icon.png">
@@ -24,7 +24,7 @@
             <nav>
                 <a href="{% url 'main:show_main' %}">Home</a>
                 <a href="{% url 'main:show_main' %}#about">About</a>
-                <a href="{% url 'main:show_skill' %}">Skill</a>
+                <a href="{% url 'main:show_skill'}">Skill</a>
                 <a href="{% url 'main:show_project' %}">Project</a>
                 <a href="{% url 'main:show_experience' %}">Experience</a>
             </nav>
@@ -33,31 +33,26 @@
     </header>
 
     <main>
-        <section class="experience" id="experience">
-            <div class="container experience-grid">
-                <div class="experience-identity">
-                    <p class="experience-kicker">What I've Been</p>
-                    <h1>Experience & Activities</h1>
+        <section class="skill" id="skill">
+            <div class="container skill-grid">
+                <div class="skill-identity">
+                    <p class="skill-kicker">What I Use</p>
+                    <h1>My Skills</h1>
                 </div>
-
-                <div class="experience-content">
-                {% for experience in experience_list %}
-                    <article class="experience-item">
-                        <div class="experience-info">
-                            <div class="experience-meta">
-                                <h2>{{ experience.title }}</h2>
-                                <span class="experience-date">{{ experience.date_range }}</span>
-                                <span class="experience-type">{{ experience.get_category_display }}</span>
-                            </div>
-                            <div class="experience-detail">
-                                <p class="experience-organization">{{ experience.organization }}</p>
-                                <p class="experience-description">{{ experience.description }}</p>
-                            </div>
-                        </div>
-                    </article>
-                {% empty %}
-                    <p class="empty-state">No experience added yet.</p>
-                {% endfor %}
+                
+                <div class="skill-content">
+                    <ul class="skill-list">
+                        {% for skill in skill_list %}
+                            <li class="skill-item">
+                                <img src="" alt="{{ skill.name }}">
+                                <span class="skill-name">
+                                    <a href="{{ skill.url }}">{{ skill.name }}</a>
+                                </span>
+                            </li>
+                        {% empty %}
+                            <li class="empty-state">No skill added yet.</li>
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
         </section>

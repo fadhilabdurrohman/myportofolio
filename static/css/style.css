@@ -47,7 +47,7 @@ body {
     line-height: 1.6;
 }
 
-h2 {
+h1 {
     font-size: clamp(2rem, 4vw, 2.8rem);
 }
 
@@ -59,6 +59,16 @@ main {
     max-width: 960px;
     margin: 0 auto;
     padding: 0 1.5rem;
+}
+
+/* Kicker */
+.hero-kicker, .skill-kicker,.project-kicker, .experience-kicker {
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-dark);
+    font-weight: 700;
+    margin-bottom: 0.75rem;
 }
 
 /* Header and navigation */
@@ -160,15 +170,6 @@ main {
     grid-area: details;
 }
 
-.hero-kicker {
-    font-size: 0.85rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent-dark);
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-}
-
 .hero-identity h1 {
     font-size: clamp(3rem, 7vw, 5rem);
     line-height: 0.95;
@@ -241,7 +242,7 @@ main {
 }
 
 /* General sections */
-.about, .skills, .projects, .experience {
+.about, .skill, .project, .experience {
     padding: 60px 0;
 }
 
@@ -322,42 +323,46 @@ main {
 }
 
 /* Skills section */
-.skills-identity, .projects-identity, .experience-identity {
-    text-align: center;
+.empty-state {
+    grid-column: 1 / -1;
+    color: var(--text-muted);
+}
+
+.skill-identity, .project-identity, .experience-identity {
     margin-bottom: 20px;
 }
 
-.skills-list {
+.skill-list {
     list-style: none;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 20px;
 }
 
-.skills-item {
+.skill-item {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.skills-item img {
+.skill-item img {
     width: 72px;
     height: 72px;
     object-fit: contain;
     transition: transform 0.2s ease;
 }
 
-.skills-item:hover img {
+.skill-item:hover img {
     transform: scale(1.2);
 }
 
 /* Projects and experiences sections*/
-.projects-content, .experience-content  {
+.project-content, .experience-content  {
     display: grid;
     gap: 10px;
 }
 
-.projects-item, .experience-item {
+.project-item, .experience-item {
     border: 1px solid var(--line);
     border-radius: var(--radius);
     padding: 20px;
@@ -365,28 +370,29 @@ main {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.projects-item:hover, .experience-item:hover {
+.project-item:hover, .experience-item:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
-.projects-meta h3, .experience-meta h3 {
+.project-meta h3, .experience-meta h3 {
     font-size: 1.2rem;
 }
 
-.projects-year, .experience-date, .experience-type {
+.project-year, .experience-date, .experience-type {
     display: block;
     color: var(--text-muted);
     font-size: 0.9rem;
 }
 
-.projects-type, .experience-organization {
+.project-type, .experience-organization {
     color: var(--accent-dark);
     font-weight: 700;
 }
 
-.projects-description, .experience-description {
+.project-description, .experience-description {
     text-align: justify;
+    color: var(--text-muted);
 }
 
 .experience-meta {
@@ -491,61 +497,7 @@ main {
     }
 
     /* Mobile skills */
-    .skills-list {
+    .skill-list {
         grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
     }
-}
-
-.experience-section {
-    padding: 4rem 0;
-    border-top: 1px solid var(--line);
-}
-
-.section-kicker {
-    color: var(--accent-dark);
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
-.experience-section h1 {
-    margin: 0.4rem 0 1.5rem;
-    font-size: 2rem;
-}
-
-.experience-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1rem;
-}
-
-.experience-card {
-    padding: 1.25rem;
-    background-color: #fff;
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-}
-
-.experience-category {
-    color: var(--accent-dark);
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-}
-
-.experience-card h2 {
-    margin: 0.5rem 0;
-    font-size: 1.25rem;
-}
-
-.experience-description,
-.empty-state {
-    color: var(--text-muted);
-}
-
-.experience-status {
-    margin-top: 1rem;
-    font-size: 0.85rem;
-    font-weight: 600;
 }

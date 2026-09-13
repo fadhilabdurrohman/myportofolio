@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Experience - {{ name }}</title>
+    <title>Project - {{ name }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="icon" type="image/png" href="/static/img/profile/rin-icon.png">
@@ -33,30 +33,27 @@
     </header>
 
     <main>
-        <section class="experience" id="experience">
-            <div class="container experience-grid">
-                <div class="experience-identity">
-                    <p class="experience-kicker">What I've Been</p>
-                    <h1>Experience & Activities</h1>
+        <section class="project" id="project">
+            <div class="container project-grid">
+                <div class="project-identity">
+                    <p class="project-kicker">What I've Built</p>
+                    <h1>My Projects</h1>
                 </div>
 
-                <div class="experience-content">
-                {% for experience in experience_list %}
-                    <article class="experience-item">
-                        <div class="experience-info">
-                            <div class="experience-meta">
-                                <h2>{{ experience.title }}</h2>
-                                <span class="experience-date">{{ experience.date_range }}</span>
-                                <span class="experience-type">{{ experience.get_category_display }}</span>
-                            </div>
-                            <div class="experience-detail">
-                                <p class="experience-organization">{{ experience.organization }}</p>
-                                <p class="experience-description">{{ experience.description }}</p>
-                            </div>
+                <div class="project-content">
+                {% for project in project_list %}
+                    <article class="project-item">
+                        <div class="project-info">
+                            <h2>{{ project.title }}</h2>
+                            <span class="project-year">{{ project.year }}</span>
+                        </div>
+                        <div class="project-detail">
+                            <p class="project-type">{{ project.project_type }}</p>
+                            <p class="project-description">{{ project.description }}</p>
                         </div>
                     </article>
                 {% empty %}
-                    <p class="empty-state">No experience added yet.</p>
+                    <p class="empty-state">No project added yet.</p>
                 {% endfor %}
                 </div>
             </div>
