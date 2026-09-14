@@ -37,27 +37,27 @@
             <div class="container experience-grid">
                 <div class="experience-identity">
                     <p class="experience-kicker">What I've Been</p>
-                    <h1>Experience & Activities</h1>
+                    <h1>Experiences & Activities</h1>
                 </div>
 
                 <div class="experience-content">
-                {% for experience in experience_list %}
-                    <article class="experience-item">
-                        <div class="experience-info">
-                            <div class="experience-meta">
-                                <h2>{{ experience.title }}</h2>
-                                <span class="experience-date">{{ experience.date_range }}</span>
-                                <span class="experience-type">{{ experience.get_category_display }}</span>
+                    {% for experience in experience_list %}
+                        <article class="experience-item">
+                            <div class="experience-info">
+                                <div class="experience-meta">
+                                    <h2>{{ experience.title }}</h2>
+                                    <span class="experience-date">{{ experience.date_range }}</span>
+                                    <span class="experience-type">{{ experience.get_category_display }}</span>
+                                </div>
+                                <div class="experience-detail">
+                                    <p class="experience-organization">{{ experience.organization }}</p>
+                                    <p class="experience-description">{{ experience.description }}</p>
+                                </div>
                             </div>
-                            <div class="experience-detail">
-                                <p class="experience-organization">{{ experience.organization }}</p>
-                                <p class="experience-description">{{ experience.description }}</p>
-                            </div>
-                        </div>
-                    </article>
-                {% empty %}
-                    <p class="empty-state">No experience added yet.</p>
-                {% endfor %}
+                        </article>
+                    {% empty %}
+                        <p class="empty-state">No experience added yet.</p>
+                    {% endfor %}
                 </div>
             </div>
         </section>

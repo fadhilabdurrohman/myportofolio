@@ -28,7 +28,7 @@
     --text-muted: #aaa79f;
 }
 
-[data-theme="dark"] .github-icon {
+[data-theme="dark"] img[alt="GitHub"] {
     filter: brightness(0) invert(1);
 }
 
@@ -136,7 +136,7 @@ main {
     bottom: 24px;
     padding: 12px 18px;
     border: 1px solid var(--line);
-    border-radius: var(--line);
+    border-radius: var(--radius);
     background-color: var(--paper);
     color: var(--ink);
     cursor: pointer;
@@ -220,6 +220,18 @@ main {
 
 .social-link:hover {
     background-color: var(--accent);
+}
+
+.social-link::after {
+    content: "\2197";
+    font-size: 0.85rem;
+    margin-left: 8px;
+    color: var(--accent);
+    transition: color 0.2 ease;
+}
+
+.social-link:hover::after {
+    color: var(--ink);
 }
 
 /* Profile photo */
@@ -341,26 +353,42 @@ main {
 
 .skill-item {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 15px;
+    justify-content: center;
+    min-height: 220px;
+    padding: 24px;
     border: 1px solid var(--line);
     border-radius: var(--radius);
-    padding: 20px;
     background-color: var(--card);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.skill-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+.skill-item img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
 }
 
-.skill-item img {
-    width: 72px;
-    height: 72px;
-    object-fit: contain;
-    transition: transform 0.2s ease;
+.skill-name {
+    width: 80%;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid var(--line);
+    text-align: center;
 }
+
+.skill-name a {
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.skill-name a:hover {
+    color: var(--accent);
+}
+
 
 /* Projects and experiences sections*/
 .project-content, .experience-content  {
@@ -374,11 +402,6 @@ main {
     padding: 20px;
     background-color: var(--card);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.project-item:hover, .experience-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
 .project-meta h3, .experience-meta h3 {
@@ -427,6 +450,12 @@ main {
     color: var(--text-muted);
     font-size: 0.85rem;
     border-top: 1px solid var(--line);
+}
+
+/* Card hover */
+.project-item:hover, .experience-item:hover, .skill-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* Responsive design (mobile) */

@@ -1,4 +1,4 @@
-// Select elements  
+// Select elements
 const menuToggle = document.querySelector(".menu-toggle");
 const siteNav = document.querySelector(".site-header nav");
 const themeToggle = document.querySelector(".theme-toggle");
@@ -14,6 +14,16 @@ menuToggle.addEventListener("click", () => {
     }
 });
 
+// Load saved theme
+const savedTheme = localStorage.getItem("theme");
+
+if (savedTheme === "dark") {
+    document.documentElement.setAttribute("data-theme", "dark");
+    themeToggle.textContent = "Light";
+} else {
+    themeToggle.textContent = "Dark";
+}
+
 // Toggle dark mode
 themeToggle.addEventListener("click", () => {
     const isDark = document.documentElement.getAttribute("data-theme") === "dark";
@@ -21,8 +31,10 @@ themeToggle.addEventListener("click", () => {
     if (isDark) {
         document.documentElement.removeAttribute("data-theme");
         themeToggle.textContent = "Dark";
+        localStorage.setItem("theme", "light");
     } else {
         document.documentElement.setAttribute("data-theme", "dark");
         themeToggle.textContent = "Light";
+        localStorage.setItem("theme", "dark");
     }
 });
