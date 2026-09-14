@@ -4,6 +4,7 @@ from main.models import *
 
 # Create your views here.
 
+# Display the main page
 def show_main(request):
     context = {
         "name": "Fadhil Abdurrohman",
@@ -22,6 +23,7 @@ def show_main(request):
     }
     return render(request, "index.html", context)
 
+# Display the skill page
 def show_skill(request):
     context = {
         "name": "Fadhil Abdurrohman",
@@ -30,6 +32,7 @@ def show_skill(request):
     }
     return render(request, "skill.html", context)
 
+# Display the project page
 def show_project(request):
     context = {
         "name": "Fadhil Abdurrohman",
@@ -38,6 +41,7 @@ def show_project(request):
     }
     return render(request, "project.html", context)
 
+# Display the experience page
 def show_experience(request):
     context = {
         "name": "Fadhil Abdurrohman",
