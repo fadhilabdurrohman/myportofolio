@@ -21,6 +21,7 @@ ALLOWED_HOSTS = ["localhost", "127.0.0.1", "fadhil-abdurrohman-myportofolio.pws.
 
 PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 
+# CSRF
 CSRF_TRUSTED_ORIGINS = ["https://fadhil-abdurrohman-myportofolio.pws.cs.ui.ac.id"]
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -64,7 +65,7 @@ ROOT_URLCONF = 'portofolio.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'templates'], # Sudah ditambahkan
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

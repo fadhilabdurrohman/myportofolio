@@ -1,39 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ name }} - Portfolio</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="icon" type="image/png" href="/static/img/profile/rin-icon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
-    <script src="/static/js/script.js" defer></script>
-</head>
-
-<body>
-
-    <!-- Header and navigation -->
-    <header class="site-header">
-        <div class="container">
-            <a href="{% url 'main:show_main' %}" class="brand">{{ nickname }}</a>
-            <button class="menu-toggle" aria-label="Toggle navigation">&#9776</button>
-            <nav>
-                <a href="{% url 'main:show_main' %}">Home</a>
-                <a href="{% url 'main:show_main' %}#about">About</a>
-                <a href="{% url 'main:show_skill' %}">Skill</a>
-                <a href="{% url 'main:show_project' %}">Project</a>
-                <a href="{% url 'main:show_experience' %}">Experience</a>
-            </nav>
-            <button class="theme-toggle" type="button" aria-label="Toggle dark mode">Dark</button>
-        </div>
-    </header>
-
+{% extends 'base.html' %}
+{% block content %}
     <main>
-
         <!-- Hero section -->
         <section class="hero" id="profile">
             <div class="container hero-grid">
@@ -64,7 +31,6 @@
                 </div>
             </div>
         </section>
-
         <!-- About section -->
         <section class="about" id="about">
             <div class="container about-grid">
@@ -91,15 +57,5 @@
                 </div>
             </div>
         </section>
-
     </main>
-
-    <!-- Footer -->
-    <footer class="site-footer">
-        <div class="container">
-            <p>&copy; 2026 {{ name }}. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
-        </div>
-    </footer>
-
-</body>
-</html>
+{% endblock content %}
