@@ -98,3 +98,4 @@ def delete_project(request, project_id):
         return redirect("main:show_project")
 
     return redirect("main:show_project")
+    
