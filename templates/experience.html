@@ -7,7 +7,22 @@
                 <div class="experience-identity">
                     <p class="experience-kicker">What I've Been</p>
                     <h1>Experiences & Activities</h1>
+                    <a href="{% url 'main:create_experience' %}" class="button experience-add-button">
+                        <span aria-hidden="true">+</span>
+                        Tambah Experience
+                    </a>
                 </div>
+                <form method="get"
+                      action="{% url 'main:show_experience' %}"
+                      class="experience-search">
+                    <input type="search"
+                           name="title"
+                           value="{{ title_query }}"
+                           placeholder="Cari berdasarkan nama experience"
+                           class="experience-search__input"
+                           aria-label="Cari berdasarkan nama experience">
+                    <button type="submit" class="button">Cari</button>
+                </form>
 
                 <div class="experience-content">
                     {% for experience in experience_list %}
@@ -15,7 +30,7 @@
                             <div class="experience-info">
                                 <div class="experience-meta">
                                     {% if experience.thumbnail %}
-                                        <img src="{{ experience.thumbnail.url }}" alt="{{ experience.name }}" class="experience-thumbnail">
+                                        <img src="{{ experience.thumbnail }}" alt="{{ experience.name }}" class="experience-thumbnail">
                                     {% endif %}
                                     <h2>{{ experience.title }}</h2>
                                     <span class="experience-date">{{ experience.date_range }}</span>
@@ -24,11 +39,18 @@
                                 <div class="experience-detail">
                                     <p class="experience-organization">{{ experience.organization }}</p>
                                     <p class="experience-description">{{ experience.description }}</p>
+                                    <div class="project-card-actions">
+                                        {% include "components/experience_delete_modal.html" with experience=experience %}
+                                    </div>
                                 </div>
                             </div>
                         </article>
                     {% empty %}
-                        <p class="empty-state">No experience added yet.</p>
+                        {% if title_query %}
+                            <p class="empty-state">Tidak ada experience dengan anma tersebut</p>
+                        {% else %}
+                            <p class="empty-state">No experience added yet.</p>
+                        {% endif %}
                     {% endfor %}
                 </div>
             </div>
