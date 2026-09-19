@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import F
 from main.models import *
-from main.forms import ProjectForm
+from main.forms import SkillForm, ProjectForm
 
 # Create your views here.
 
@@ -29,11 +29,22 @@ def show_main(request):
 
 # Display the skill page
 def show_skill(request):
+    json_response = get_skills_json(request)
+    
+    skills = serializers.deserialize(
+        "json",
+        json_response.content.decode("utf-8"),
+    )
+    skills = [skill.object for skill in skills]
+    title_query = request.GET.get("name", "").strip()
+
     context = {
         "name": "Fadhil Abdurrohman",
         "nickname": "Fadhil",
-        "skill_list": Skill.objects.all().order_by('name'),
+        "skill_list": skills,
+        "title_query": title_query,
     }
+
     return render(request, "skill.html", context)
 
 # Display the project page
@@ -64,6 +75,40 @@ def show_experience(request):
         "experience_list": Experience.objects.all().order_by(F('ended_at').desc(nulls_first=True)),
     }
     return render(request, "experience.html", context)
+
+def create_skill(request):
+    form = SkillForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Skill baru berhasil ditambahkan!")
+        return redirect("main:show_skill")
+
+    context = {
+        "name": "Fadhil",
+        "form": form,
+    }
+    return render(request, "skill_form.html", context)
+
+def get_skills_json(request):
+    name_query = request.GET.get("name", "").strip()
+    skills = Skill.objects.all()
+
+    if name_query:
+        skills = skills.filter(name__icontains=name_query)
+
+    skills_json = serializers.serialize("json", skills)
+    return HttpResponse(skills_json, content_type="application/json")
+
+def delete_skill(request, skill_id):
+    skill = get_object_or_404(Project, pk=skill_id)
+
+    if request.method == "POST":
+        skill.delete()
+        messages.success(request, "Skill berhasil dihapus!")
+        return redirect("main:show_skill")
+
+    return redirect("main:show_skill")
 
 def create_project(request):
     form = ProjectForm(request.POST or None)
