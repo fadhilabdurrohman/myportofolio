@@ -391,7 +391,7 @@ main {
 }
 
 /* Search and add */
-.project-action {
+.project-action, .experience-action {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -399,14 +399,14 @@ main {
     flex-wrap: nowrap;
 }
 
-.project-search {
+.project-search, .experience-search {
     display: flex;
     align-items: center;
     gap: 10px;
     flex: 1;
 }
 
-.project-search__input {
+.project-search__input, .experience-search__input {
     flex: 1;
     min-width: 0;
     height: 40px;
@@ -418,7 +418,7 @@ main {
 }
 
 /* Projects and experiences sections*/
-.project-grid {
+.project-grid, .experience-grid {
     display: grid;
     gap: 10px;
 }
@@ -461,6 +461,14 @@ main {
 .project-description, .experience-description {
     text-align: justify;
     color: var(--text-muted);
+}
+
+.experience-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 10px;
+    gap: 10px;
 }
 
 .project-card-actions {
@@ -548,7 +556,20 @@ main {
     background-color: var(--accent-dark);
 }
 
-.project-add-button {
+.edit-button {
+    justify-content: center;
+    background-color: var(--card);
+    color: var(--ink);
+    text-decoration: none;
+    border-color: var(--line);
+    transition: background-color 0.2s ease;
+}
+
+.edit-button:hover {
+    background-color: var(--line);
+}
+
+.add-button {
     width: 40px;
     height: 40px;
     display: flex;
@@ -561,7 +582,7 @@ main {
     transition: background-color 0.2s ease;
 }
 
-.project-add-button:hover {
+.add-button:hover {
     background-color: var(--accent-dark);
 }
 
@@ -569,7 +590,6 @@ main {
     border-color: var(--line);
     background-color: var(--card);
     color: var(--ink);
-    cursor: pointer;
 }
 
 .button-secondary:hover {
@@ -586,7 +606,8 @@ main {
     background-color: rgb(101, 3, 3);
 }
 
-.project-card-actions .button {
+.project-card-actions .button,
+.experience-card-actions .button {
     height: 20px;
     display: flex;
     align-items: center;

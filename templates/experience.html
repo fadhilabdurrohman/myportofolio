@@ -7,22 +7,23 @@
                 <div class="experience-identity">
                     <p class="experience-kicker">What I've Been</p>
                     <h1>Experiences & Activities</h1>
-                    <a href="{% url 'main:create_experience' %}" class="button experience-add-button">
+                </div>
+                <div class="experience-action">
+                    <form method="get"
+                        action="{% url 'main:show_experience' %}"
+                        class="experience-search">
+                        <input type="search"
+                            name="title"
+                            value="{{ title_query }}"
+                            placeholder="Cari berdasarkan nama experience"
+                            class="experience-search__input"
+                            aria-label="Cari berdasarkan nama experience">
+                        <button type="submit" class="button search-button">&#x1F50D;&#xFE0E</button>
+                    </form>
+                    <a href="{% url 'main:create_experience' %}" class="button add-button">
                         <span aria-hidden="true">+</span>
-                        Tambah Experience
                     </a>
                 </div>
-                <form method="get"
-                      action="{% url 'main:show_experience' %}"
-                      class="experience-search">
-                    <input type="search"
-                           name="title"
-                           value="{{ title_query }}"
-                           placeholder="Cari berdasarkan nama experience"
-                           class="experience-search__input"
-                           aria-label="Cari berdasarkan nama experience">
-                    <button type="submit" class="button">Cari</button>
-                </form>
 
                 <div class="experience-content">
                     {% for experience in experience_list %}
@@ -39,9 +40,9 @@
                                 <div class="experience-detail">
                                     <p class="experience-organization">{{ experience.organization }}</p>
                                     <p class="experience-description">{{ experience.description }}</p>
-                                    <div class="project-card-actions">
-                                        <a href="{% url 'main:update_experience' experience.id %}" class="button">Edit</a>
-                                        {% include "components/experience_delete_modal.html" with experience=experience %}
+                                    <div class="experience-card-actions">
+                                            <a href="{% url 'main:update_experience' experience.id %}" class="button edit-button">Edit</a>
+                                            {% include "components/experience_delete_modal.html" with experience=experience %}
                                     </div>
                                 </div>
                             </div>
