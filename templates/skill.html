@@ -8,7 +8,23 @@
                 <div class="skill-identity">
                     <p class="skill-kicker">What I Use</p>
                     <h1>My Skills</h1>
+                    <a href="{% url 'main:create_skill' %}"
+                       class="button skill-add-button">
+                        <span aria-hidden="true">+</span>
+                        Tambah Skill
+                    </a>
                 </div>
+                <form method="get"
+                      action="{% url 'main:show_skill' %}"
+                      class="skill-search">
+                    <input type="search"
+                           name="name"
+                           value="{{ name_query }}"
+                           placeholder="Cari berdasarkan nama skill"
+                           class="skill-search__input"
+                           aria-label="Cari berdasarkan nama skill">
+                    <button type="submit" class="button">Cari</button>
+                </form>
                 
                 <div class="skill-content">
                     <ul class="skill-list">
@@ -18,9 +34,16 @@
                                 <span class="skill-name">
                                     <a href="{{ skill.url }}">{{ skill.name }}</a>
                                 </span>
+                                <div class="skill-card-action"> 
+                                    {% include "components/skill_delete_modal.html" with skill=skill %}
+                                </div>
                             </li>
                         {% empty %}
-                            <li class="empty-state">No skill added yet.</li>
+                            {% if name_query %}
+                                <li class="empty-state">Tidak ada skill dengan nama tersebut.</li>
+                            {% else %}
+                                <li class="empty-state">No skill added yet.</li>
+                            {% endif %}
                         {% endfor %}
                     </ul>
                 </div>

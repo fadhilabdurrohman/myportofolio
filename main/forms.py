@@ -1,6 +1,41 @@
 from django.forms import ModelForm, TextInput, Textarea, NumberInput, URLInput, Select, DateInput
 
-from main.models import Project, Experience
+from main.models import Skill, Project, Experience
+
+class SkillForm(ModelForm):
+    class Meta:
+        model = Skill
+        fields = [
+            'name',
+            'icon',
+            'url',
+        ]
+
+        labels = {
+            'name': 'Nama Skill',
+            'icon': 'Logo Skill',
+            'url': 'URL Skill',
+        }
+
+        widgets = {
+            'name': TextInput(
+                attrs={
+                    'placeholder': 'Python',
+                    'maxlength': 255,
+                }
+            ), 
+            'icon': TextInput(
+                attrs={
+                    'placeholder': 'python.svg',
+                    'maxlength': 255,
+                }
+            ),
+            'url': URLInput(
+                attrs={
+                    'placeholder': 'https://www.python.org/',
+                }
+            )
+        }
 
 class ProjectForm(ModelForm):
     class Meta:
@@ -49,7 +84,7 @@ class ProjectForm(ModelForm):
                     'maxlength': 255,
                 }
             ),
-            'url': URLInput(
+            'url': URLInput(    
                 attrs={
                     'placeholder': 'https://github.com/Burhan/BurhanQuest'
                 }
