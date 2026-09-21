@@ -1,4 +1,4 @@
-/* Global styles */
+/* Global */
 * {
     margin: 0;
     padding: 0;
@@ -6,7 +6,7 @@
     font-family: "JetBrains Mono", monospace, sans-serif;
 }
 
-/* Theme variables */
+/* Theme */
 :root {
     --ink: #1c1917;
     --paper: #f2ebde;
@@ -32,7 +32,7 @@
     filter: brightness(0) invert(1);
 }
 
-/* Base elements */
+/* Base */
 html {
     scroll-behavior: smooth;
 }
@@ -71,7 +71,7 @@ main {
     margin-bottom: 0.75rem;
 }
 
-/* Header and navigation */
+/* Header & Nav */
 .site-header {
     border-bottom: 1px solid var(--line);
     position: fixed;
@@ -111,7 +111,7 @@ main {
     color: var(--accent)
 }
 
-/* Menu and theme toggle */
+/* Menu & Theme Toggle */
 .menu-toggle {
     display: none;
     width: 40px;
@@ -148,7 +148,7 @@ main {
     transition: background-color 0.2s ease;
 }
 
-/* Hero section */
+/* Hero */
 .hero {
     padding: 4.5rem 0 5rem;
 }
@@ -181,7 +181,7 @@ main {
     margin-bottom: 1.5rem;
 }
 
-/* Profile information */
+/* Profile */
 .meta-list {
     display: flex;
     gap: 2rem;
@@ -253,12 +253,12 @@ main {
     border: 2px solid var(--ink)
 }
 
-/* General sections */
+/* General Sections */
 .about, .skill, .project, .experience {
     padding: 60px 0;
 }
 
-/* About section */
+/* About */
 .about-grid {
     display: grid;
     gap: 5px;
@@ -340,7 +340,7 @@ main {
     color: var(--text-muted);
 }
 
-/* Skills section */
+/* Skill */
 .skill-identity, .project-identity, .experience-identity {
     margin-bottom: 20px;
 }
@@ -404,7 +404,7 @@ main {
     color: var(--accent);
 }
 
-/* Search and add */
+/* Search & Add (shared: skill, project, experience) */
 .skill-action, .project-action, .experience-action {
     display: flex;
     align-items: center;
@@ -447,7 +447,7 @@ main {
     opacity: 0.5;
 }
 
-/* Projects and experiences sections*/
+/* Project & Experience */
 .skill-grid, .project-grid, .experience-grid {
     display: grid;
     gap: 10px;
@@ -535,6 +535,7 @@ main {
     color: var(--text-muted);
 }
 
+/* Footer */
 .site-footer {
     padding: 1.5rem;
     color: var(--text-muted);
@@ -542,7 +543,7 @@ main {
     border-top: 1px solid var(--line);
 }
 
-/* Card hover */
+/* Card Hover */
 .project-item:hover, .experience-item:hover, .skill-item:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
@@ -570,7 +571,53 @@ main {
     font-weight: 700;
 }
 
-/* Buttons */
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--ink);
+    border-radius: var(--radius);
+    background-color: var(--card);
+    color: var(--ink);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group textarea {
+    min-height: 140px;
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: var(--ink);
+    opacity: 0.5;
+}
+
+.form-button {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.form-button .button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 20px;
+}
+
+/* Button */
 .button {
     cursor: pointer;
     border: 1px solid;
@@ -696,7 +743,7 @@ main {
     justify-content: center;
 }
 
-/* Delete modal */
+/* Delete */
 .project-delete-modal,
 .experience-delete-modal,
 .skill-delete-modal {
@@ -788,53 +835,7 @@ main {
     justify-content: center;
 }
 
-.form-group input,
-.form-group textarea,
-.form-group select {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1px solid var(--ink);
-    border-radius: var(--radius);
-    background-color: var(--card);
-    color: var(--ink);
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.form-group textarea {
-    min-height: 140px;
-    resize: vertical;
-}
-
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px var(--accent);
-}
-
-.form-group input::placeholder,
-.form-group textarea::placeholder {
-    color: var(--ink);
-    opacity: 0.5;
-}
-
-.form-button {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.form-button .button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 20px;
-}
-
-/* Responsive design (mobile) */
+/* Responsive / Mobile */
 @media (max-width: 600px) {
     /* Mobile header */
     .site-header .container {
