@@ -111,7 +111,7 @@ def get_skills_json(request):
     return HttpResponse(skills_json, content_type="application/json")
 
 def delete_skill(request, skill_id):
-    skill = get_object_or_404(Project, pk=skill_id)
+    skill = get_object_or_404(Skill, pk=skill_id)
 
     if request.method == "POST":
         skill.delete()
