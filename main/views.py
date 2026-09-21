@@ -154,6 +154,27 @@ def delete_project(request, project_id):
 
     return redirect("main:show_project")
 
+def update_project(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    form = ProjectForm(
+        request.POST or None,
+        instance=project
+    )
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Proyek berhasil diperbarui!")
+        return redirect("main:show_project")
+
+    context = {
+        "name": "Fadhil",
+        "form": form,
+        "project": project,
+    }
+
+    return render(request, "projects_form.html", context)
+
 def create_experience(request):
     form = ExperienceForm(request.POST or None)
 

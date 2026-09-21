@@ -47,6 +47,7 @@
                                         {% endif %}
                                     </div>
                                     <div class="project-item-actions">
+                                        <a href="{% url 'main:update_project' project.id %}" class="button edit-button">Edit</a>
                                         {% include "components/project_delete_modal.html" with project=project %}
                                     </div>
                                 </div>
