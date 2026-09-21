@@ -1,15 +1,25 @@
 {% extends "base.html" %}
 {% block meta %}
-    <title>Add Skill - {{ name }}</title>
+    <title>
+        {% if skill %}
+            Edit Skill - {{ name }}
+        {% else %}
+            Add Skill - {{ name }}
+        {% endif %}
+    </title>
 {% endblock meta %}
 {% block content %}
     <main>
         <section class="skill-section">
             <div class="container">
-                <h1>Add New Skill</h1>
-                <form method="post"
-                      action="{% url 'main:create_skill' %}"
-                      class="skill-form">
+                <h1>
+                    {% if skill %}
+                        Edit Skill
+                    {% else %}
+                        Add New Skill
+                    {% endif %}
+                </h1>
+                <form method="post" class="skill-form">
                     {% csrf_token %}
                     {% for field in form %}
                         <div class="form-group">
@@ -21,7 +31,13 @@
                         </div>
                     {% endfor %}
                     <div class="form-button">
-                        <button type="submit" class="button confirm-button">Tambah Skill</button>
+                        <button type="submit" class="button confirm-button">
+                            {% if skill %}
+                                Simpan Perubahan
+                            {% else %}
+                                Tambah skill
+                            {% endif %}
+                        </button>
                         <a href="{% url 'main:show_skill' %}" class="button button-secondary">Batal</a>
                     </div>
                 </form>

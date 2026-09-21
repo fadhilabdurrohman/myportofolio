@@ -365,8 +365,11 @@ main {
 }
 
 .skill-card-action {
+    display: flex;
     align-self: flex-end;
+    padding-top: 5px;
     padding-right: 8px;
+    gap: 10px;
 }
 
 .skill-info {
@@ -577,8 +580,9 @@ main {
     transition: background-color 0.2s ease;
 }
 
-.delete-skill-button {
-    font-size: 20px;
+.edit-skill-button, .delete-skill-button {
+    text-decoration: none;
+    font-size: 18px;
     cursor: pointer;
     border: none;
     background-color: transparent;

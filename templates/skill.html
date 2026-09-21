@@ -31,6 +31,7 @@
                         {% for skill in skill_list %}
                             <li class="skill-item">
                                 <div class="skill-card-action">
+                                    <a href="{% url 'main:update_skill' skill.id %}" class="edit-skill-button">&#9998</a>
                                     {% include "components/skill_delete_modal.html" with skill=skill %}
                                 </div>
                                 <div class="skill-info">
