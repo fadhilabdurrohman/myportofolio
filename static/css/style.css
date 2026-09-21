@@ -437,6 +437,13 @@ main {
     box-shadow: 0 0 0 2px var(--accent);
 }
 
+.skill-search__input::placeholder,
+.project-search__input::placeholder,
+.experience-search__input::placeholder {
+    color: var(--ink);
+    opacity: 0.5;
+}
+
 /* Projects and experiences sections*/
 .skill-grid, .project-grid, .experience-grid {
     display: grid;
