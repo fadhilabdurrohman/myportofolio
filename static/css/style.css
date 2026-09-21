@@ -483,7 +483,14 @@ main {
     color: var(--text-muted);
 }
 
-.project-card-actions, .experience-card-actions {
+.project-card-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.experience-card-actions {
     display: flex;
     justify-content: flex-end;
     align-items: center;
