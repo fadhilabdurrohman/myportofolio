@@ -2,6 +2,7 @@ from django.forms import ModelForm, TextInput, Textarea, NumberInput, URLInput, 
 
 from main.models import Skill, Project, Experience
 
+# Skill form
 class SkillForm(ModelForm):
     class Meta:
         model = Skill
@@ -37,6 +38,7 @@ class SkillForm(ModelForm):
             )
         }
 
+# Project form
 class ProjectForm(ModelForm):
     class Meta:
         model = Project
@@ -96,6 +98,7 @@ class ProjectForm(ModelForm):
             ),
         }
 
+# Experience form
 class ExperienceForm(ModelForm):
     class Meta:
         model = Experience

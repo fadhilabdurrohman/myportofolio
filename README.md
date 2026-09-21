@@ -41,8 +41,8 @@ Saat _view_ mengembalikan data portofolio dalam bentuk JSON, Django mengambil da
 
 Pengerjaan tugas ini dibantu dengan Gen AI, yaitu ChatGPT dan Claude, sebagai alat bantu dalam memahami konsep dan membantu dalam progres pengerjaan.
 
-[ChatGPT](https://chatgpt.com/share/6ab13b40-e428-83ec-ac0b-7bfd2eb2c0f8)
-[Claude](https://chatgpt.com/share/6ab13b40-e428-83ec-ac0b-7bfd2eb2c0f8)
+- [ChatGPT](https://chatgpt.com/share/6ab13b40-e428-83ec-ac0b-7bfd2eb2c0f8)
+- [Claude](https://chatgpt.com/share/6ab13b40-e428-83ec-ac0b-7bfd2eb2c0f8)
 
 ### Penggunaan AI
 

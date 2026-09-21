@@ -86,6 +86,7 @@ def show_experience(request):
     }
     return render(request, "experience.html", context)
 
+# Create skill
 def create_skill(request):
     form = SkillForm(request.POST or None)
 
@@ -100,6 +101,7 @@ def create_skill(request):
     }
     return render(request, "skill_form.html", context)
 
+# JSON skill
 def get_skills_json(request):
     name_query = request.GET.get("name", "").strip()
     skills = Skill.objects.all()
@@ -110,6 +112,7 @@ def get_skills_json(request):
     skills_json = serializers.serialize("json", skills)
     return HttpResponse(skills_json, content_type="application/json")
 
+# Delete skill
 def delete_skill(request, skill_id):
     skill = get_object_or_404(Skill, pk=skill_id)
 
@@ -120,6 +123,7 @@ def delete_skill(request, skill_id):
 
     return redirect("main:show_skill")
 
+# Update skill
 def update_skill(request, skill_id):
     skill = get_object_or_404(Skill, pk=skill_id)
 
@@ -141,6 +145,7 @@ def update_skill(request, skill_id):
 
     return render(request, "skill_form.html", context)
 
+# Create project
 def create_project(request):
     form = ProjectForm(request.POST or None)
 
@@ -155,6 +160,7 @@ def create_project(request):
     }
     return render(request, "projects_form.html", context)
 
+# JSON project
 def get_projects_json(request):
     title_query = request.GET.get("title", "").strip()
     projects = Project.objects.all()
@@ -165,6 +171,7 @@ def get_projects_json(request):
     projects_json = serializers.serialize("json", projects)
     return HttpResponse(projects_json, content_type="application/json")
 
+# Delete project
 def delete_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
@@ -175,6 +182,7 @@ def delete_project(request, project_id):
 
     return redirect("main:show_project")
 
+# Update project
 def update_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
@@ -196,6 +204,7 @@ def update_project(request, project_id):
 
     return render(request, "projects_form.html", context)
 
+# Create experience
 def create_experience(request):
     form = ExperienceForm(request.POST or None)
 
@@ -210,6 +219,7 @@ def create_experience(request):
         }
     return render(request, "experience_form.html", context)
 
+# JSON experience
 def get_experience_json(request):
     title_query = request.GET.get("title", "").strip()
     experiences = Experience.objects.all()
@@ -220,6 +230,7 @@ def get_experience_json(request):
     experiences_json = serializers.serialize("json", experiences)
     return HttpResponse(experiences_json, content_type="application/json")
 
+# Delete experience
 def delete_experience(request, experience_id):
     experience = get_object_or_404(Experience, pk=experience_id)
 
@@ -230,6 +241,7 @@ def delete_experience(request, experience_id):
 
     return redirect("main:show_experience")
 
+# Update experience
 def update_experience(request, experience_id):
     experience = get_object_or_404(Experience, pk=experience_id)
 
