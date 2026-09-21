@@ -24,19 +24,19 @@
                 popovertarget="delete-skill-{{ skill.id }}"
                 popovertargetaction="hide"
                 aria-label="Tutup konfirmasi hapus">×</button>
-        <h2 id="delete-skill-title-{{ skill.id }}">Hapus Projek?</h2>
+        <h2 id="delete-skill-title-{{ skill.id }}">Delete Skill?</h2>
         <p>
-            Apakah Anda yakin ingin menghapus
+            Aru you sure want to delete
             <strong>{{ skill.title }}</strong>?
         </p>
         <div class="skill-delete-modal__actions">
             <button type="button"
                     class="button button-secondary"
                     popovertarget="delete-skill-{{ skill.id }}"
-                    popovertargetaction="hide">Batal</button>
+                    popovertargetaction="hide">Cancel</button>
             <form method="post" action="{% url 'main:delete_skill' skill.id %}">
                 {% csrf_token %}
-                <button type="submit" class="button button-danger">Ya, Hapus</button>
+                <button type="submit" class="button button-danger">Yes, Delete</button>
             </form>
         </div>
     </div>

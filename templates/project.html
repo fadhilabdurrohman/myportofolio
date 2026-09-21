@@ -43,7 +43,7 @@
                                 <div class="project-card-actions">
                                     <div class="project-url-actions">
                                         {% if project.url %}
-                                            <a href="{{ project.url }}" class="button url-button">Lihat Project &#x2197;</a>
+                                            <a href="{{ project.url }}" class="button url-button">View Project &#x2197;</a>
                                         {% endif %}
                                     </div>
                                     <div class="project-item-actions">
@@ -55,7 +55,7 @@
                         </article>
                     {% empty %}
                         {% if title_query %}
-                            <p class="empty-state">Tidak ada proyek dengan nama tersebut.</p>
+                            <p class="empty-state">No project found with that name.</p>
                         {% else %}
                             <p class="empty-state">No project added yet.</p>
                         {% endif %}

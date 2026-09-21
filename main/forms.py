@@ -13,27 +13,27 @@ class SkillForm(ModelForm):
         ]
 
         labels = {
-            'name': 'Nama Skill',
-            'icon': 'Logo Skill',
-            'url': 'URL Skill',
+            'name': 'Name',
+            'icon': 'Icon',
+            'url': 'URL',
         }
 
         widgets = {
             'name': TextInput(
                 attrs={
-                    'placeholder': 'Python',
+                    'placeholder': 'Enter skill name',
                     'maxlength': 255,
                 }
             ), 
             'icon': TextInput(
                 attrs={
-                    'placeholder': 'python.svg',
+                    'placeholder': 'Enter icon filename',
                     'maxlength': 255,
                 }
             ),
             'url': URLInput(
                 attrs={
-                    'placeholder': 'https://www.python.org/',
+                    'placeholder': 'Enter skill URL',
                 }
             )
         }
@@ -52,48 +52,48 @@ class ProjectForm(ModelForm):
         ]
 
         labels = {
-            'title': 'Nama Proyek',
-            'description': 'Deskripsi Proyek',
-            'year': 'Tahun Proyek',
-            'project_type': 'Tipe Proyek',
-            'url': 'URL Proyek',
-            'thumbnail': 'Thumbnail Proyek',
+            'title': 'Title',
+            'description': 'Description',
+            'year': 'Year',
+            'project_type': 'Type',
+            'url': 'URL',
+            'thumbnail': 'Thumbnail',
         }
 
         widgets = {
             'title': TextInput(
                 attrs={
-                    'placeholder': 'Potofolio Website',
+                    'placeholder': 'Enter project title',
                     'maxlength': 255,
                 }
             ),
             'description': Textarea(
                 attrs={
-                    'placeholder': 'Ceritakan Proyekmu',
+                    'placeholder': 'Enter project description',
                     'rows': 3,
                 }
             ),
             'year': NumberInput(
                 attrs={
-                    'placeholder': '2026',
+                    'placeholder': 'Enter project year',
                     'min': 1900,
                     'max': 2100,
                 }
             ),
             'project_type': TextInput(
                 attrs={
-                    'placeholder': 'Django Project',
+                    'placeholder': 'Enter project type',
                     'maxlength': 255,
                 }
             ),
             'url': URLInput(    
                 attrs={
-                    'placeholder': 'https://github.com/Burhan/BurhanQuest'
+                    'placeholder': 'Enter project URL'
                 }
             ),
             'thumbnail': URLInput(
                 attrs={
-                    'placeholder': 'https://drive.google.com/thumbnail'
+                    'placeholder': 'Enter thumbnail URL'
                 }
             ),
         }
@@ -113,31 +113,31 @@ class ExperienceForm(ModelForm):
         ]
 
         labels = {
-            'title': 'Nama Kegiatan',
-            'organization': 'Penyelenggara Kegiatan',
-            'description': 'Deskripsi Kegiatan',
-            'category': 'Kategori Kegiatan',
-            'thumbnail': 'Thumbnail Kegiatan',
-            'started_at': 'Tanggal Mulai',
-            'ended_at': 'Tanggal Selesai',
+                'title': 'Title',
+                'organization': 'Organization',
+                'description': 'Description',
+                'category': 'Category',
+                'thumbnail': 'Thumbnail',
+                'started_at': 'Start Date',
+                'ended_at': 'End Date',
         }
 
         widgets = {
             'title': TextInput(
                 attrs={
-                    'placeholder': 'Staff of Academic',
+                    'placeholder': 'Enter experience title',
                     'maxlength': 255,
                 }
             ),
             'organization': TextInput(
                 attrs={
-                    'placeholder': 'Dasar-Dasar Pemrograman 0',
+                    'placeholder': 'Enter organization name',
                     'maxlength': 255,
                 }
             ),
             'description': Textarea(
                 attrs={
-                    'placeholder': 'Ceritakan Pengalamanmu',
+                    'placeholder': 'Enter experience description',
                     'rows': 3,
                 }
             ),
@@ -148,7 +148,7 @@ class ExperienceForm(ModelForm):
             ),
             'thumbnail': URLInput(
                 attrs={
-                    'placeholder': 'https://drive.google.com/thumbnail',
+                    'placeholder': 'Enter thumbnail URL',
                 }
             ),
             'started_at': DateInput(

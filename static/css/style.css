@@ -637,7 +637,7 @@ main {
     transition: color 0.2s ease;
 }
 
-.delete-skill-button:hover {
+.edit-skill-button:hover , .delete-skill-button:hover {
     color: #3d3b35;
 }
 
