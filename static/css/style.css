@@ -779,6 +779,15 @@ main {
     margin-top: 25px;
 }
 
+.project-delete-modal__actions .button,
+.experience-delete-modal__actions .button,
+.skill-delete-modal__actions .button {
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .form-group input,
 .form-group textarea,
 .form-group select {
