@@ -10,7 +10,7 @@
 {% endblock meta %}
 {% block content %}
     <main>
-        <section class="experience-section">
+        <section class="project-section">
             <div class="container">
                 <h1>
                     {% if project %}
@@ -32,13 +32,15 @@
                             {% endfor %}
                         </div>
                     {% endfor %}
-                    <button type="submit" class="button confirm-button">
-                        {% if experience %}
-                            Simpan Perubahan
-                        {% else %}
-                            Tambah Project
-                        {% endif %}</button>
-                    <a href="{% url 'main:show_project' %}" class="button button-secondary">Batal</a>
+                    <div class="form-button">
+                        <button type="submit" class="button confirm-button">
+                            {% if project %}
+                                Simpan Perubahan
+                            {% else %}
+                                Tambah Project
+                            {% endif %}</button>
+                        <a href="{% url 'main:show_project' %}" class="button button-secondary">Batal</a>
+                    </div>
                 </form>
             </div>
         </section>

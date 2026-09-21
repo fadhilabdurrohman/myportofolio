@@ -483,19 +483,12 @@ main {
     color: var(--text-muted);
 }
 
-.experience-card-actions {
+.project-card-actions, .experience-card-actions {
     display: flex;
     justify-content: flex-end;
     align-items: center;
     margin-top: 10px;
     gap: 10px;
-}
-
-.project-card-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 10px;
 }
 
 .project-url-actions, .project-item-actions {
@@ -798,6 +791,20 @@ main {
 .form-group textarea::placeholder {
     color: var(--ink);
     opacity: 0.5;
+}
+
+.form-button {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.form-button .button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 20px;
 }
 
 /* Responsive design (mobile) */

@@ -30,14 +30,16 @@
                             {% endfor %}
                         </div>
                     {% endfor %}
-                    <button type="submit" class="button confirm-button">
-                        {% if experience %}
-                            Simpan Perubahan
-                        {% else %}
-                            Tambah Experience
-                        {% endif %}
-                    </button>
-                    <a href="{% url 'main:show_experience' %}" class="button-secondary">Batal</a>
+                    <div class="form-button">
+                        <button type="submit" class="button confirm-button">
+                            {% if experience %}
+                                Simpan Perubahan
+                            {% else %}
+                                Tambah Experience
+                            {% endif %}
+                        </button>
+                        <a href="{% url 'main:show_experience' %}" class="button button-secondary">Batal</a>
+                    </div>
                 </form>
             </div>
         </section>
