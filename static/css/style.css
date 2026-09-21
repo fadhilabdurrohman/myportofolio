@@ -12,7 +12,7 @@
     --paper: #f2ebde;
     --card: #fffdf9;
     --accent: #505b3e;
-    --accent-dark: #505746;
+    --accent-dark: #373c31;
     --line: #dbd4c9;
     --text-muted: #6b675f;
     --radius: 4px;
@@ -434,8 +434,7 @@ main {
     gap: 10px;
 }
 
-/* Projects and experiences sections*/
-.skill-content, .project-content, .experience-content   {
+.skill-content, .project-content, .experience-content {
     display: grid;
     gap: 10px;
 }
@@ -461,6 +460,13 @@ main {
 .project-type, .experience-organization {
     color: var(--accent-dark);
     font-weight: 700;
+}
+
+.project-thumbnail, .experience-thumbnail {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    display: block;
 }
 
 .project-description, .experience-description {
@@ -543,6 +549,16 @@ main {
     margin-bottom: 8px;
     font-size: 1rem;
     font-weight: 700;
+}
+
+/* Buttons */
+.button {
+    cursor: pointer;
+    border: 1px solid;
+    border-radius: var(--radius);
+    padding: 15px 10px;
+    font-size: 1rem;
+    transition: background-color 0.2s ease;
 }
 
 .delete-skill-button {
@@ -665,6 +681,61 @@ main {
 .skill-delete-modal__backdrop {
     position: fixed;
     inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: transparent;
+    cursor: default;
+}
+
+.project-delete-modal__content,
+.experience-delete-modal__content,
+.skill-delete-modal__content {
+    position: relative;
+    z-index: 1;
+    padding: 30px;
+}
+
+.project-delete-modal__content h2,
+.experience-delete-modal__content h2,
+.skill-delete-modal__content h2 {
+    margin-bottom: 10px;
+    font-size: 1.4rem;
+}
+
+.project-delete-modal__content p,
+.experience-delete-modal__content p,
+.skill-delete-modal__content p {
+    color: var(--text-muted);
+}
+
+.project-delete-modal__close,
+.experience-delete-modal__close,
+.skill-delete-modal__close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    border: 0;
+    background: none;
+    color: var(--text-muted);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.project-delete-modal__close:hover,
+.experience-delete-modal__close:hover,
+.skill-delete-modal__close:hover {
+    color: var(--ink);
+}
+
+.project-delete-modal__actions,
+.experience-delete-modal__actions,
+.skill-delete-modal__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
 }
 
 .form-group input,
