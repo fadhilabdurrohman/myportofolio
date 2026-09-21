@@ -357,15 +357,26 @@ main {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 220px;
-    padding: 24px;
+    padding-bottom: 24px;
     border: 1px solid var(--line);
     border-radius: var(--radius);
     background-color: var(--card);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.skill-item img {
+.skill-card-action {
+    align-self: flex-end;
+    padding-right: 8px;
+}
+
+.skill-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.skill-img {
     width: 120px;
     height: 120px;
     object-fit: contain;
@@ -391,7 +402,7 @@ main {
 }
 
 /* Search and add */
-.project-action, .experience-action {
+.skill-action, .project-action, .experience-action {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -399,14 +410,14 @@ main {
     flex-wrap: nowrap;
 }
 
-.project-search, .experience-search {
+.skill-search, .project-search, .experience-search {
     display: flex;
     align-items: center;
     gap: 10px;
     flex: 1;
 }
 
-.project-search__input, .experience-search__input {
+.skill-search__input, .project-search__input, .experience-search__input {
     flex: 1;
     min-width: 0;
     height: 40px;
@@ -418,12 +429,12 @@ main {
 }
 
 /* Projects and experiences sections*/
-.project-grid, .experience-grid {
+.skill-grid, .project-grid, .experience-grid {
     display: grid;
     gap: 10px;
 }
 
-.project-content, .experience-content  {
+.skill-content, .project-content, .experience-content  {
     display: grid;
     gap: 10px;
 }
@@ -526,6 +537,14 @@ main {
     padding: 15px 10px;
     font-size: 1rem;
     transition: background-color 0.2s ease;
+}
+
+.delete-skill-button {
+    font-size: 20px;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    color: var(--text-muted);
 }
 
 .search-button {
