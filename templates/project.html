@@ -23,9 +23,11 @@
                             aria-label="Search by project name">
                         <button type="submit" class="button search-button">&#x1F50D;&#xFE0E</button>
                     </form>
-                    <a href="{% url 'main:create_project' %}" class="button add-button">
-                        <span aria-hidden="true">+</span>
-                    </a>
+                    {% if user.is_superuser %}
+                        <a href="{% url 'main:create_project' %}" class="button add-button">
+                            <span aria-hidden="true">+</span>
+                        </a>
+                    {% endif %}
                 </div>
                 <div class="project-content">
                     {% for project in project_list %}
@@ -47,8 +49,11 @@
                                         {% endif %}
                                     </div>
                                     <div class="project-item-actions">
-                                        <a href="{% url 'main:update_project' project.id %}" class="button edit-button">Edit</a>
-                                        {% include "components/project_delete_modal.html" with project=project %}
+                                        {% include "components/project_star.html" with project=project %}
+                                        {% if user.is_superuser %}
+                                            <a href="{% url 'main:update_project' project.id %}" class="button edit-button">Edit</a>
+                                            {% include "components/project_delete_modal.html" with project=project %}
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>

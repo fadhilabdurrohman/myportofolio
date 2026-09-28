@@ -835,6 +835,31 @@ main {
     justify-content: center;
 }
 
+/* Star */
+.star-form {
+    display: inline;
+}
+
+.button-star {
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #ffd700;
+    color: #262623;
+}
+
+.button-star.is-starred {
+    background: var(--accent);
+}
+
+.star-count {
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.25);
+    font-size: 0.8rem;
+}
+
 /* Responsive / Mobile */
 @media (max-width: 600px) {
     /* Mobile header */
