@@ -14,6 +14,9 @@ import datetime
 # Create your views here.
 
 # Display the main page
+def is_editor(user):
+    return user.is_authenticated and user.groups.filter(name="Editor").exists()
+
 def show_main(request):
     last_login = request.COOKIES.get('last_login', 'Belum ada sesi login / Cookie tidak ditemukan')
     context = {
@@ -50,6 +53,7 @@ def show_skill(request):
         "nickname": "Fadhil",
         "skill_list": skills,
         "title_query": title_query,
+        "is_editor": is_editor(request.user),
     }
 
     return render(request, "skill.html", context)
@@ -70,6 +74,7 @@ def show_project(request):
         "nickname": "Fadhil",
         "project_list": projects,
         "title_query": title_query,
+        "is_editor": is_editor(request.user),
     }
 
     return render(request, "project.html", context)
@@ -90,11 +95,16 @@ def show_experience(request):
         "nickname": "Fadhil",
         "experience_list": experiences,
         "title_query": title_query,
+        "is_editor": is_editor(request.user),
     }
     return render(request, "experience.html", context)
 
 # Create skill
+@login_required(login_url="/login/")
 def create_skill(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     form = SkillForm(request.POST or None)
 
     if request.method == "POST" and form.is_valid():
@@ -120,7 +130,11 @@ def get_skills_json(request):
     return HttpResponse(skills_json, content_type="application/json")
 
 # Delete skill
+@login_required(login_url="/login/")
 def delete_skill(request, skill_id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     skill = get_object_or_404(Skill, pk=skill_id)
 
     if request.method == "POST":
@@ -131,7 +145,11 @@ def delete_skill(request, skill_id):
     return redirect("main:show_skill")
 
 # Update skill
+@login_required(login_url="/login/")
 def update_skill(request, skill_id):
+    if not request.user.is_superuser and not request.user.groups.filter(name="Editor").exists():
+        raise PermissionDenied
+    
     skill = get_object_or_404(Skill, pk=skill_id)
 
     form = SkillForm(
@@ -183,7 +201,11 @@ def get_projects_json(request):
     return HttpResponse(projects_json, content_type="application/json")
 
 # Delete project
+@login_required(login_url="/login/")
 def delete_project(request, project_id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     project = get_object_or_404(Project, pk=project_id)
 
     if request.method == "POST":
@@ -194,7 +216,11 @@ def delete_project(request, project_id):
     return redirect("main:show_project")
 
 # Update project
+@login_required(login_url="/login/")
 def update_project(request, project_id):
+    if not request.user.is_superuser and not request.user.groups.filter(name="Editor").exists():
+            raise PermissionDenied
+    
     project = get_object_or_404(Project, pk=project_id)
 
     form = ProjectForm(
@@ -216,7 +242,11 @@ def update_project(request, project_id):
     return render(request, "projects_form.html", context)
 
 # Create experience
+@login_required(login_url="/login/")
 def create_experience(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     form = ExperienceForm(request.POST or None)
 
     if request.method == "POST" and form.is_valid():
@@ -242,7 +272,11 @@ def get_experience_json(request):
     return HttpResponse(experiences_json, content_type="application/json")
 
 # Delete experience
+@login_required(login_url="/login/")
 def delete_experience(request, experience_id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     experience = get_object_or_404(Experience, pk=experience_id)
 
     if request.method == "POST":
@@ -253,7 +287,11 @@ def delete_experience(request, experience_id):
     return redirect("main:show_experience")
 
 # Update experience
+@login_required(login_url="/login/")
 def update_experience(request, experience_id):
+    if not request.user.is_superuser and not request.user.groups.filter(name="Editor").exists():
+        raise PermissionDenied
+    
     experience = get_object_or_404(Experience, pk=experience_id)
 
     form = ExperienceForm(

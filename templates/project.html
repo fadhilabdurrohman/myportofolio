@@ -50,8 +50,12 @@
                                     </div>
                                     <div class="project-item-actions">
                                         {% include "components/project_star.html" with project=project %}
+                                        {% if user.is_superuser or is_editor %}
+                                            <a href="{% url 'main:update_project' project.id %}" class="button edit-button">
+                                                Edit
+                                            </a>
+                                        {% endif %}
                                         {% if user.is_superuser %}
-                                            <a href="{% url 'main:update_project' project.id %}" class="button edit-button">Edit</a>
                                             {% include "components/project_delete_modal.html" with project=project %}
                                         {% endif %}
                                     </div>
