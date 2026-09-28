@@ -43,6 +43,7 @@
                                     <p class="experience-organization">{{ experience.organization }}</p>
                                     <p class="experience-description">{{ experience.description }}</p>
                                     <div class="experience-card-actions">
+                                        {% include "components/experience_star.html" with experience=experience %}
                                         {% if user.is_superuser or is_editor %}
                                             <a href="{% url 'main:update_experience' experience.id %}" class="button edit-button">
                                                 Edit

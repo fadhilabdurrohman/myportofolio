@@ -350,15 +350,37 @@ def logout_user(request):
     return response
 
 @login_required(login_url="/login/")
-def toggle_star(request, project_id):
+def toggle_skill_star(request, skill_id):
+    skill = get_object_or_404(Skill, pk=skill_id)
+
+    if request.method == "POST":
+        if request.user in skill.starred_by.all():
+            skill.starred_by.remove(request.user)
+        else:
+            skill.starred_by.add(request.user)
+
+    return redirect("main:show_skill")
+
+@login_required(login_url="/login/")
+def toggle_project_star(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
     if request.method == "POST":
-        # Kalau akun ini sudah pernah memberi star, batalkan star-nya.
-        # Kalau belum, tambahkan star.
         if request.user in project.starred_by.all():
             project.starred_by.remove(request.user)
         else:
             project.starred_by.add(request.user)
 
     return redirect("main:show_project")
+
+@login_required(login_url="/login/")
+def toggle_experience_star(request, experience_id):
+    experience = get_object_or_404(Experience, pk=experience_id)
+
+    if request.method == "POST":
+        if request.user in experience.starred_by.all():
+            experience.starred_by.remove(request.user)
+        else:
+            experience.starred_by.add(request.user)
+
+    return redirect("main:show_experience")

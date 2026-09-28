@@ -33,6 +33,7 @@
                         {% for skill in skill_list %}
                             <li class="skill-item">
                                 <div class="skill-card-action">
+                                    {% include "components/skill_star.html" with skill=skill %}
                                     {% if user.is_superuser or is_editor %}
                                         <a href="{% url 'main:update_skill' skill.id %}" class="edit-skill-button">&#9998;</a>
                                     {% endif %}
