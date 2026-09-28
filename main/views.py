@@ -126,7 +126,7 @@ def get_skills_json(request):
     if name_query:
         skills = skills.filter(name__icontains=name_query)
 
-    skills_json = serializers.serialize("json", skills)
+    skills_json = serializers.serialize("json", skills, use_natural_foreign_keys=True)
     return HttpResponse(skills_json, content_type="application/json")
 
 # Delete skill
@@ -197,7 +197,7 @@ def get_projects_json(request):
     if title_query:
         projects = projects.filter(title__icontains=title_query)
 
-    projects_json = serializers.serialize("json", projects)
+    projects_json = serializers.serialize("json", projects, use_natural_foreign_keys=True)
     return HttpResponse(projects_json, content_type="application/json")
 
 # Delete project
@@ -268,7 +268,7 @@ def get_experience_json(request):
     if title_query:
         experiences = experiences.filter(title__icontains=title_query)
 
-    experiences_json = serializers.serialize("json", experiences)
+    experiences_json = serializers.serialize("json", experiences, use_natural_foreign_keys=True)
     return HttpResponse(experiences_json, content_type="application/json")
 
 # Delete experience
