@@ -72,6 +72,10 @@ main {
 }
 
 /* Header & Nav */
+.nav-user {
+    text-decoration: underline;
+}
+
 .site-header {
     border-bottom: 1px solid var(--line);
     position: fixed;
@@ -105,6 +109,7 @@ main {
     color: var(--ink);
     text-decoration: none;
     font-size: 0.95rem;
+    transition: color 0.2s ease;
 }
 
 .site-header nav a:hover {
@@ -603,18 +608,8 @@ main {
     opacity: 0.5;
 }
 
-.form-button {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.form-button .button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 20px;
+.form-error {
+    color: #ae0808;
 }
 
 /* Button */
@@ -627,7 +622,46 @@ main {
     transition: background-color 0.2s ease;
 }
 
-.edit-skill-button, .delete-skill-button {
+.site-header nav .login-button {
+    background-color: var(--accent);
+    color: #f1ecec;
+    padding: 0px 6px;
+    border-radius: var(--radius);
+    transition: background-color 0.2s ease;
+}
+
+.site-header nav .login-button:hover {
+    background-color: var(--accent-dark);
+    color: #f1ecec;
+}
+
+.site-header nav .logout-button {
+    background-color: #ae0808;
+    color: #f1ecec;
+    padding: 0px 6px;
+    border-radius: var(--radius);
+    transition: background-color 0.2s ease;
+}
+
+.site-header nav .logout-button:hover {
+    background-color: #650303;
+    color: #f1ecec;
+}
+
+.site-header nav .register-button {
+    background-color: var(--paper);
+    padding: 0px 6px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    transition: background-color 0.2s ease;
+}
+
+.site-header nav .register-button:hover {
+    background-color: var(--line);
+    color: var(--ink);
+}
+
+.edit-skill-button, .delete-skill-button, .star-skill-button {
     text-decoration: none;
     font-size: 18px;
     cursor: pointer;
@@ -637,8 +671,16 @@ main {
     transition: color 0.2s ease;
 }
 
-.edit-skill-button:hover , .delete-skill-button:hover {
+.edit-skill-button:hover , .delete-skill-button:hover, .star-skill-button:hover {
     color: #3d3b35;
+}
+
+.star-skill-button.is-skill-starred {
+    color: #ffd700;
+}
+
+.star-skill-button.is-skill-starred:hover {
+    color: #bda100;
 }
 
 .search-button {
@@ -692,7 +734,7 @@ main {
     justify-content: center;
     background-color: var(--accent);
     border: 1px solid var(--line);
-    color: rgb(241, 236, 236);
+    color: #f1ecec;
     text-decoration: none;
     transition: background-color 0.2s ease;
 }
@@ -715,7 +757,7 @@ main {
 .button-danger {
     border-color: #ae0808;
     background-color: #ae0808;
-    color: #f1eee7;
+    color: #f1ecec;
 }
 
 .button-danger:hover {
@@ -723,14 +765,28 @@ main {
     border-color: #650303;
 }
 
-.confirm-button {
+.form-button, .auth-button {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.form-button .button, .auth-button .button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 20px;
+}
+
+.confirm-button, .login, .register {
     background-color: var(--accent);
     border-color: var(--accent);
     color: #f1ecec;
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.confirm-button:hover {
+.confirm-button:hover, .login:hover, .register:hover {
     background-color: var(--accent-dark);
     border-color: var(--accent-dark);
 }
@@ -845,12 +901,13 @@ main {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    background: #ffd700;
+    background-color: #ffd700;
     color: #262623;
+    transition: background-color 0.2s ease;
 }
 
-.button-star.is-starred {
-    background: var(--accent);
+.button-star:hover {
+    background-color: #bda100;
 }
 
 .star-count {

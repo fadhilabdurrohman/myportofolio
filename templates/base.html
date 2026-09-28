@@ -28,10 +28,10 @@
                 <a href="{% url 'main:show_experience' %}">Experience</a>
                 {% if user.is_authenticated %}
                     <span class="nav-user">{{ user.username }}</span>
-                    <a href="{% url 'main:logout' %}">Logout</a>
+                    <a href="{% url 'main:logout' %}" class="logout-button">Logout</a>
                 {% else %}
-                    <a href="{% url 'main:login' %}">Login</a>
-                    <a href="{% url 'main:register' %}">Register</a>
+                    <a href="{% url 'main:login' %}" class="login-button">Login</a>
+                    <a href="{% url 'main:register' %}" class="register-button">Register</a>
                 {% endif %}
             </nav>
             <button class="theme-toggle" type="button" aria-label="Toggle dark mode">Dark</button>

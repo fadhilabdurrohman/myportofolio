@@ -24,7 +24,9 @@
                             {% endfor %}
                         </div>
                     {% endfor %}
-                    <button type="submit" class="button">Sign In</button>
+                    <div class="auth-button">
+                        <button type="submit" class="button register">Sign In</button>
+                    </div>
                 </form>
                 <p>Have an account? Log in <a href="{% url 'main:login' %}">here</a>.</p>
             </div>
