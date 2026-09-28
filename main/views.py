@@ -312,6 +312,7 @@ def update_experience(request, experience_id):
 
     return render(request, "experience_form.html", context)
 
+# Register
 def register(request):
     form = UserCreationForm(request.POST or None)
 
@@ -326,6 +327,7 @@ def register(request):
     }
     return render(request, "register.html", context)
 
+# Login
 def login_user(request):
     form = AuthenticationForm(request, data=request.POST or None)
 
@@ -342,13 +344,14 @@ def login_user(request):
     }
     return render(request, "login.html", context)
 
-
+# Logout
 def logout_user(request):
     logout(request)
     response = redirect("main:show_main")
     response.delete_cookie('last_login')
     return response
 
+# Skill star
 @login_required(login_url="/login/")
 def toggle_skill_star(request, skill_id):
     skill = get_object_or_404(Skill, pk=skill_id)
@@ -361,6 +364,7 @@ def toggle_skill_star(request, skill_id):
 
     return redirect("main:show_skill")
 
+# Project star
 @login_required(login_url="/login/")
 def toggle_project_star(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
@@ -373,6 +377,7 @@ def toggle_project_star(request, project_id):
 
     return redirect("main:show_project")
 
+# Experience star
 @login_required(login_url="/login/")
 def toggle_experience_star(request, experience_id):
     experience = get_object_or_404(Experience, pk=experience_id)

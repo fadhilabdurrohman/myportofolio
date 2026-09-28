@@ -13,42 +13,35 @@ Website ini menampilkan ringkasan tentang diri saya, kemampuan, proyek, serta pe
 ## Features
 
 - Responsive design
-- Resonsive Navigation
+- Responsive Navigation
 - Light Mode dan Dark Mode
 - Skill, Project, Experience section
+- CRUD operations for Skill, Project, and Experience
+- JSON API for Skill, Project, and Experience
+- Search functionality for Skill, Project, and Experience
+- Star and Unstar functionality
+- User registration and login
+- Session and cookie management
+- Guest, Regular User, Editor, SUperuser roles
 
 ## Tugas Refleksi
 
 - [Tugas refleksi 1](./tugas/tugas1.md)
 - [Tugas refleksi 2](./tugas/tugas2.md)
 - [Tugas refleksi 3](./tugas/tugas3.md)
-
-### Pertanyaan Reflektif
-
-> 1. Jelaskan mengapa kita menggunakan `ModelForm` pada Django alih-alih membuat form HTML secara manual. Selain itu, jelaskan pula mengapa kita diwajibkan menambahkan `{% csrf_token %}` pada form tersebut!
-
-`ModelForm` digunakan karena dapat membuat form berdasarkan model Django secara otomatis, sehingga validasi dan pengelolaan data menjadi lebih mudah dan konsisten dibandingkan membuat form HTML secara manual. `{% csrf_token %}` wajib digunakan untuk melindungi form dari serangan Cross-Site Request Forgery (CSRF) dengan memastikan permintaan POST berasal dari sumber yang benar.
-
-> 2. Pada Tutorial 03, kita membahas format data JSON dan XML. Mengapa JSON lebih disukai dalam pengembangan aplikasi web modern dibandingkan XML?
-
-JSON lebih banyak digunakan dalam aplikasi web modern karena sintaksnya lebih sederhana, ukuran datanya relatif kecil, dan mudah diproses oleh berbagai bahasa pemrograman. JSON juga lebih sesuai untuk komunikasi antara _frontend_ dan _backend_ melalui API dibandingkan XML yang memiliki struktur lebih kompleks.
-
-> 3. Jelaskan alur yang terjadi saat kamu menggunakan fungsi view untuk mengembalikan data portofoliomu dalam bentuk JSON. Mengapa kita perlu melakukan proses serialization pada model Django sebelum datanya dikembalikan?
-
-Saat _view_ mengembalikan data portofolio dalam bentuk JSON, Django mengambil data dari model, melakukan *serialization* untuk mengubah objek atau _queryset_ Django menjadi struktur data yang dapat direpresentasikan sebagai JSON, lalu mengembalikannya kepada _client_ melalui HTTP response. Serialization diperlukan karena objek model Django tidak dapat langsung dikirim sebagai JSON tanpa terlebih dahulu diubah menjadi format data yang dapat dipahami oleh _client_.
+- [Tugas refleksi 4](./tugas/tugas4.md)
 
 ### AI Disclosure
 
-Pengerjaan tugas ini dibantu dengan Gen AI, yaitu ChatGPT dan Claude, sebagai alat bantu dalam memahami konsep dan membantu dalam progres pengerjaan.
+Untuk tugas ini, saya dibantu Ai dalam menyelesaikan beberapa masalah, terkait autentikasi akun.
 
-- [ChatGPT](https://chatgpt.com/share/6ab13b40-e428-83ec-ac0b-7bfd2eb2c0f8)
-- [Claude](https://chatgpt.com/share/6ab13b40-e428-83ec-ac0b-7bfd2eb2c0f8)
+- [ChatGPT](https://chatgpt.com/share/6aba8c88-b1ec-83ec-bdc9-6076a8c57c29)
 
 ### Penggunaan AI
 
-1. Membantu memahami konsep dan penggunaan `ModelForm`
-2. Membantu implementasi CRUD Experience dan CRUD Project
-3. Membantu perbaikan dan penyusunan HTML/CSS, termasuk desain form, tombol, modal delete, status, dan elemen Experience.
+1. Membantu memahami konsep dan implementasi Django, khususnya authentication, session, cookie, authorization, Django Group, dan permission.
+2. Membantu menganalisis error dan traceback selama pengembangan, seperti NoReverseMatch, 404 Not Found, OperationalError, dan TimeoutException pada pengujian Selenium.
+3. Membantu meninjau dan memperbaiki bagian kode tertentu.
 
 ## Setup Instruction
 
@@ -93,14 +86,47 @@ pip install -r requirements.txt
 python manage.py migrate
 ```
 
-6. Jalankan server
+6. Buat superuser
+
+```bash
+python manage.py create superuser
+```
+
+Ikuti instruksi yang diberikan untuk membuat username, email, dan password.
+
+7. Jalankan server
 
 ```bash
 python manage.py runserver
 ```
 
-7. Buka melalui browser
+8. Buka melalui browser
 
 ```
 http://127.0.0.1:8000/
 ```
+
+9. Akses Django Admin
+
+Untuk mengelola user dan role Editor, buka:
+
+```
+http://127.0.0.1:8000/admin/
+```
+
+Pada Django Admin, buat Group `Editor` dan masukkan user yang diinginkan ke dalam group tersebut.
+
+11. Pengujian
+
+Gunakan akun dengan _role_ yang sesuai untuk menguji _authentication_, _authorization_, dan fitur Star
+
+- Guest
+- Regular User
+- Editor
+- Superuser
+
+Endpoint JSON dapat diuji melalui:
+
+- `http://127.0.0.1:8000/api/skills/`
+- `http://127.0.0.1:8000/api/projects/`
+- `http://127.0.0.1:8000/api/experiences/`
