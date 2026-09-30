@@ -124,6 +124,16 @@
             gridContainer.classList.toggle('hide', !showGrid);
         }
 
+        // Mengubah karakter khusus HTML menjadi entity agar ditampilkan sebagai teks
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
         // Membuat elemen card project
         function buildProjectCardElement(item) {
             const project = item.fields;
@@ -133,13 +143,13 @@
             articleElement.className = 'project-item';
 
             const imageHtml = project.thumbnail
-                ? `<img src="${project.thumbnail}"
-                        alt="${project.title}"
+                ? `<img src="${escapeHtml(project.thumbnail)}"
+                        alt="${escapeHtml(project.title)}"
                         class="project-thumbnail">`
                 : '';
 
             const urlHtml = project.url
-                ? `<a href="${project.url}"
+                ? `<a href="${escapeHtml(project.url)}"
                         class="button url-button"
                         target="_blank"
                         rel="noopener noreferrer">
@@ -195,7 +205,7 @@
                 : "Star";
 
             const starTitle = project.star_count > 0
-                ? `Dibintangi oleh ${project.starred_by_names}`
+                ? `Dibintangi oleh ${escapeHtml(project.starred_by_names)}`
                 : "Jadilah yang pertama memberi star";
 
             const starHtml = `
@@ -209,7 +219,7 @@
                         <span aria-hidden="true">★</span>
                         ${starText}
                         <span class="star-count">
-                            ${project.star_count}
+                            ${escapeHtml(project.star_count)}
                         </span>
                     </button>
                 </form>
@@ -218,18 +228,18 @@
             const completeCardHtml = `
                 ${imageHtml}
 
-                <h2>${project.title}</h2>
+                <h2>${escapeHtml(project.title)}</h2>
 
                 <span class="project-year">
-                    ${project.year}
+                    ${escapeHtml(project.year)}
                 </span>
 
                 <p class="project-type">
-                    ${project.project_type}
+                    ${escapeHtml(project.project_type)}
                 </p>
 
                 <p class="project-description">
-                    ${project.description}
+                    ${escapeHtml(project.description)}
                 </p>
 
                 <div class="project-card-actions">
