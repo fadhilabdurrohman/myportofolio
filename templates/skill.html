@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
+{% block meta %}
+    <title>Skill - {{ name }}</title>
+{% endblock meta %}
 {% block content %}
     <main>
         <!-- Skill section -->
@@ -11,53 +14,268 @@
                 </div>
                 <div class="skill-action">
                     <form method="get"
-                        action="{% url 'main:show_skill' %}"
-                        class="skill-search">
+                      action="{% url 'main:show_skill' %}"
+                      id="skill-search-form"
+                      class="skill-search">
                         <input type="search"
                             name="name"
+                            id="search-input"
                             value="{{ name_query }}"
                             placeholder="Search by skill name"
                             class="skill-search__input"
                             aria-label="Search by skill name">
                         <button type="submit" class="button search-button">&#x1F50D;&#xFE0E</button>
-                        {% if user.is_superuser %}
-                            <a href="{% url 'main:create_skill' %}" class="button add-button">
-                                <span aria-hidden="true">+</span>
-                            </a>
-                        {% endif %}
                     </form>
+                    {% if user.is_superuser %}
+                        <a href="{% url 'main:create_skill' %}"
+                           class="button add-button">
+                            <span aria-hidden="true">+</span>
+                        </a>
+                    {% endif %}
                 </div>
-                
-                <div class="skill-content">
-                    <ul class="skill-list">
-                        {% for skill in skill_list %}
-                            <li class="skill-item">
-                                <div class="skill-card-action">
-                                    {% include "components/skill_star.html" with skill=skill %}
-                                    {% if user.is_superuser or is_editor %}
-                                        <a href="{% url 'main:update_skill' skill.id %}" class="edit-skill-button">&#9998;</a>
-                                    {% endif %}
-                                    {% if user.is_superuser %}
-                                        {% include "components/skill_delete_modal.html" with skill=skill %}
-                                    {% endif %}
-                                </div>
-                                <div class="skill-info">
-                                    <img src="{% static 'img/skills/' %}{{ skill.icon }}" alt="{{ skill.name }}" class="skill-img">
-                                    <span class="skill-name">
-                                        <a href="{{ skill.url }}">{{ skill.name }}</a>
-                                    </span>
-                                </div>
-                            </li>
-                        {% empty %}
-                            {% if name_query %}
-                                <li class="empty-state">No skill found with that name.</li>
-                            {% else %}
-                                <li class="empty-state">No skill added yet.</li>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
+                <!-- Loading State -->
+                <div id="loading" class="empty-state hide">
+                    <p>Memuat skills...</p>
                 </div>
+
+                <!-- Error State -->
+                <div id="error" class="empty-state hide">
+                    <p>Gagal memuat data skills. Silakan coba lagi.</p>
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty" class="empty-state hide">
+                    <p>Belum ada skill yang ditambahkan atau ditemukan.</p>
+                </div>
+
+                <!-- Skill Grid -->
+                <ul id="grid" class="skill-list hide"></ul>
             </div>
         </section>
     </main>
+    <script>
+        // Konfigurasi
+        const BASE_SKILLS_ENDPOINT = "{% url 'main:get_skills_json' %}";
+        const SKILL_ICON_BASE = "{% static 'img/skills/' %}";
+        const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
+        const IS_EDITOR = "{{ is_editor|yesno:'true,false' }}" === "true";
+        const CAN_EDIT = IS_SUPERUSER || IS_EDITOR;
+        const CURRENT_USERNAME = "{{ user.username|escapejs }}";
+        let skillsAbortController;
+
+        // Elemen DOM
+        const loadingState = document.getElementById('loading');
+        const errorState = document.getElementById('error');
+        const emptyState = document.getElementById('empty');
+        const gridContainer = document.getElementById('grid');
+        const searchForm = document.getElementById('skill-search-form');
+        const searchInput = document.getElementById('search-input');
+        const SEARCH_DEBOUNCE_DELAY = 300;
+        let searchDebounceTimer;
+
+        // Menyembunyikan/Menampilkan section halaman
+        function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showGrid = false }) {
+            loadingState.classList.toggle('hide', !showLoading);
+            errorState.classList.toggle('hide', !showError);
+            emptyState.classList.toggle('hide', !showEmpty);
+            gridContainer.classList.toggle('hide', !showGrid);
+        }
+
+        // Mengubah karakter khusus HTML menjadi entity agar ditampilkan sebagai teks
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        // Mengambil informasi star dari data JSON
+        function getStarInformation(starredBy) {
+            const users = Array.isArray(starredBy) ? starredBy : [];
+
+            const names = users.map(user => {
+                if (Array.isArray(user)) {
+                    return String(user[0]);
+                }
+                return String(user);
+            });
+
+            const isStarred = CURRENT_USERNAME !== '' && names.includes(CURRENT_USERNAME);
+
+            return {
+                count: users.length,
+                names: names,
+                isStarred: isStarred,
+            };
+        }
+
+        // Membuat elemen card skill
+        function buildSkillCardElement(item) {
+            const skill = item.fields;
+            const skillId = item.pk;
+
+            const listElement = document.createElement('li');
+            listElement.className = 'skill-item';
+
+            const deleteUrl = "{% url 'main:delete_skill' '00000000-0000-0000-0000-000000000000' %}"
+                .replace(
+                    '00000000-0000-0000-0000-000000000000',
+                    skillId
+                );
+
+            const starUrl = "{% url 'main:toggle_skill_star' '00000000-0000-0000-0000-000000000000' %}"
+                .replace(
+                    '00000000-0000-0000-0000-000000000000',
+                    skillId
+                );
+
+            const updateUrl = "{% url 'main:update_skill' '00000000-0000-0000-0000-000000000000' %}"
+                .replace(
+                    '00000000-0000-0000-0000-000000000000',
+                    skillId
+                );
+
+            const deleteHtml = IS_SUPERUSER
+                ? `
+                    <form method="post"
+                        action="${deleteUrl}"
+                        class="delete-form">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="delete-skill-button"
+                                onclick="return confirm('Yakin ingin menghapus skill ini?');">
+                            &#128465;
+                        </button>
+                    </form>
+                `
+                : '';
+
+            const editHtml = `
+                <a href="${updateUrl}" class="edit-skill-button">
+                    &#9998;
+                </a>
+            `;
+
+            const starInformation = getStarInformation(skill.starred_by);
+
+            const isStarredClass = starInformation.isStarred
+                ? " is-skill-starred"
+                : "";
+
+            const starTitle = starInformation.count > 0
+                ? `Dibintangi oleh ${escapeHtml(starInformation.names.join(', '))}`
+                : "Jadilah yang pertama memberi star";
+
+            const starHtml = `
+                <form method="post"
+                    action="${starUrl}"
+                    class="star-form">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="star-skill-button${isStarredClass}"
+                            title="${starTitle}">
+                        <span aria-hidden="true">★</span>
+                        <span class="skill-star-count">
+                            ${escapeHtml(starInformation.count)}
+                        </span>
+                    </button>
+                </form>
+            `;
+
+            const skillNameHtml = skill.url
+                ? `<a href="${escapeHtml(skill.url)}"
+                        target="_blank"
+                        rel="noopener noreferrer">
+                        ${escapeHtml(skill.name)}
+                </a>`
+                : escapeHtml(skill.name);
+
+            const completeCardHtml = `
+                <div class="skill-card-action">
+                    ${starHtml}
+
+                    ${
+                        CAN_EDIT
+                            ? editHtml
+                            : ''
+                    }
+
+                    ${deleteHtml}
+                </div>
+
+                <div class="skill-info">
+                    <img src="${SKILL_ICON_BASE}${escapeHtml(skill.icon)}"
+                        alt="${escapeHtml(skill.name)}"
+                        class="skill-img">
+
+                    <span class="skill-name">
+                        ${skillNameHtml}
+                    </span>
+                </div>
+            `;
+
+            listElement.innerHTML = completeCardHtml;
+
+            return listElement;
+        }
+
+        // Fetch data skill
+        async function fetchSkills(searchQuery = "") {
+            if (skillsAbortController) skillsAbortController.abort();
+            skillsAbortController = new AbortController();
+
+            try {
+                displayPageSection({ showLoading: true });
+
+                const url = searchQuery ? `${BASE_SKILLS_ENDPOINT}?name=${encodeURIComponent(searchQuery)}` : BASE_SKILLS_ENDPOINT;
+
+                const response = await fetch(url, {
+                    headers: { 'Accept': 'application/json' },
+                    signal: skillsAbortController.signal,
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch data');
+
+                const skillData = await response.json();
+
+                if (skillData.length === 0) {
+                    displayPageSection({ showEmpty: true });
+                } else {
+                    gridContainer.innerHTML = '';
+                    skillData.forEach(item => {
+                        gridContainer.appendChild(buildSkillCardElement(item));
+                    });
+                    displayPageSection({ showGrid: true });
+                }
+            } catch (error) {
+                if (error.name === 'AbortError') return;
+                console.error('Error loading skills:', error);
+                displayPageSection({ showError: true });
+            }
+        }
+
+        // Event Handlers untuk Form Search
+        function searchSkills() {
+            fetchSkills(searchInput.value.trim());
+        }
+
+        searchInput.addEventListener("input", function() {
+            clearTimeout(searchDebounceTimer);
+
+            searchDebounceTimer = setTimeout(function() {
+                searchSkills();
+            }, SEARCH_DEBOUNCE_DELAY);
+        });
+
+        searchForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+            clearTimeout(searchDebounceTimer);
+            searchSkills();
+        });
+
+        // Start application
+        fetchSkills(searchInput.value.trim());
+    </script>
 {% endblock content %}

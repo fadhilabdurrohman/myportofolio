@@ -40,20 +40,13 @@ def show_main(request):
 
 # Display the skill page
 def show_skill(request):
-    json_response = get_skills_json(request)
-    
-    skills = serializers.deserialize(
-        "json",
-        json_response.content.decode("utf-8"),
-    )
-    skills = [skill.object for skill in skills]
-    title_query = request.GET.get("name", "").strip()
+    name_query = request.GET.get("name", "").strip()
 
     context = {
         "name": "Fadhil Abdurrohman",
         "nickname": "Fadhil",
-        "skill_list": skills,
-        "title_query": title_query,
+        "name_query": name_query,
+        "form": SkillForm(),
         "is_editor": is_editor(request.user),
     }
 
@@ -68,25 +61,19 @@ def show_project(request):
         "nickname": "Fadhil",
         "title_query": title_query,
         "form": ProjectForm(),
+        "is_editor": is_editor(request.user),
     }
     return render(request, "project.html", context)
 
 # Display the experience page
 def show_experience(request):
-    json_response = get_experience_json(request)
-    
-    experiences = serializers.deserialize(
-        "json",
-        json_response.content.decode("utf-8"),
-    )
-    experiences = [experience.object for experience in experiences]
     title_query = request.GET.get("title", "").strip()
     
     context = {
         "name": "Fadhil Abdurrohman",
         "nickname": "Fadhil",
-        "experience_list": experiences,
         "title_query": title_query,
+        "form": ExperienceForm(),
         "is_editor": is_editor(request.user),
     }
     return render(request, "experience.html", context)

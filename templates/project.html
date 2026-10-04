@@ -32,69 +32,25 @@
                             <span aria-hidden="true">+</span>
                         </button>
                     {% endif %}
-                    <!-- Loading State -->
-                    <div id="loading" class="empty-state hide">
-                        <p>Memuat projects...</p>
-                    </div>
-
-                    <!-- Error State -->
-                    <div id="error" class="empty-state hide">
-                        <p>Gagal memuat data projects. Silakan coba lagi.</p>
-                    </div>
-
-                    <!-- Empty State -->
-                    <div id="empty" class="empty-state hide">
-                        <p>Belum ada proyek yang ditambahkan atau ditemukan.</p>
-                    </div>
-
-                    <!-- Project Grid -->
-                    <div id="grid" class="experience-grid project-grid hide"></div>
                 </div>
-                <div class="project-content">
-                    {% for project in project_list %}
-                        <article class="project-item">
-                            <div class="project-info">
-                                {% if project.thumbnail %}
-                                    <img src="{{ project.thumbnail }}" alt="{{ project.title }}" class="project-thumbnail">
-                                {% endif %}
-                                <h2>{{ project.title }}</h2>
-                                <span class="project-year">{{ project.year }}</span>
-                            </div>
-                            <div class="project-detail">
-                                <p class="project-type">{{ project.project_type }}</p>
-                                <p class="project-description">{{ project.description }}</p>
-                                <div class="project-card-actions">
-                                    <div class="project-url-actions">
-                                        {% if project.url %}
-                                            <a href="{{ project.url }}" class="button url-button">View Project &#x2197;</a>
-                                        {% endif %}
-                                    </div>
-                                    <div class="project-item-actions">
-                                        {% include "components/project_star.html" with project=project %}
-                                        {% if user.is_superuser or is_editor %}
-                                            <a href="{% url 'main:update_project' project.id %}" class="button edit-button">
-                                                Edit
-                                            </a>
-                                        {% endif %}
-                                        {% if user.is_superuser %}
-                                            {% include "components/project_delete_modal.html" with project=project %}
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </article>
-                    {% empty %}
-                        {% if title_query %}
-                            <p class="empty-state">No project found with that name.</p>
-                        {% else %}
-                            <p class="empty-state">No project added yet.</p>
-                        {% endif %}
-                    {% endfor %}
+                <!-- Loading State -->
+                <div id="loading" class="empty-state hide">
+                    <p>Memuat projects...</p>
                 </div>
+
+                <!-- Error State -->
+                <div id="error" class="empty-state hide">
+                    <p>Gagal memuat data projects. Silakan coba lagi.</p>
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty" class="empty-state hide">
+                    <p>Belum ada proyek yang ditambahkan atau ditemukan.</p>
+                </div>
+
+                <!-- Project Grid -->
+                <div id="grid" class="project-grid hide"></div>
             </div>
-            <button class="button button-secondary" onclick="showToast('Notifikasi Sistem', 'Project berhasil dimuat dengan baik!', 'success')">
-                Test Toast Notifikasi
-            </button>
         </section>
     </main>
     {% if user.is_superuser %}
@@ -104,6 +60,8 @@
         // Konfigurasi
         const BASE_PROJECTS_ENDPOINT = "{% url 'main:get_projects_json' %}";
         const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
+        const IS_EDITOR = "{{ is_editor|yesno:'true,false' }}" === "true";
+        const CAN_EDIT = IS_SUPERUSER || IS_EDITOR;
         let projectsAbortController;
 
         // Elemen DOM
@@ -251,11 +209,11 @@
                         ${starHtml}
 
                         ${
-                            IS_SUPERUSER
+                            CAN_EDIT
                                 ? editHtml
                                 : ''
                         }
-
+                        
                         ${deleteHtml}
                     </div>
                 </div>
