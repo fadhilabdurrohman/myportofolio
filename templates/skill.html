@@ -57,6 +57,49 @@
     {% if user.is_superuser %}
         {% include "components/skill_form_modal.html" %}
     {% endif %}
+    {% if user.is_superuser %}
+        <div id="skill-delete-modal"
+            class="skill-delete-modal"
+            popover="auto"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="skill-delete-modal-title">
+
+            <button type="button"
+                    class="skill-delete-modal__backdrop"
+                    popovertarget="skill-delete-modal"
+                    popovertargetaction="hide"
+                    aria-label="Close delete confirmation"></button>
+
+            <div class="skill-delete-modal__content">
+                <button type="button"
+                        class="skill-delete-modal__close"
+                        popovertarget="skill-delete-modal"
+                        popovertargetaction="hide"
+                        aria-label="Close delete confirmation">
+                    ×
+                </button>
+
+                <h2 id="skill-delete-modal-title">Delete Skill</h2>
+                <p>Are you sure you want to delete this skill?</p>
+
+                <div class="skill-delete-modal__actions">
+                    <button type="button"
+                            class="button button-secondary"
+                            popovertarget="skill-delete-modal"
+                            popovertargetaction="hide">
+                        Cancel
+                    </button>
+
+                    <button type="button"
+                            id="confirm-skill-delete"
+                            class="button button-danger">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    {% endif %}
     <script>
         // Konfigurasi
         const BASE_SKILLS_ENDPOINT = "{% url 'main:get_skills_json' %}";
@@ -140,8 +183,7 @@
                         data-delete-url="${deleteAjaxUrl}">
                         {% csrf_token %}
                         <button type="submit"
-                                class="delete-skill-button"
-                                onclick="return confirm('Are you sure you want to delete this skill?');">
+                                class="delete-skill-button">
                             &#128465;
                         </button>
                     </form>
@@ -405,14 +447,30 @@
             toggleSkillStar(starForm);
         });
 
+        let pendingSkillDeleteForm = null;
         gridContainer.addEventListener('submit', function(event) {
             const deleteForm = event.target.closest('.delete-form');
 
             if (!deleteForm) return;
 
             event.preventDefault();
-            deleteSkill(deleteForm);
+            pendingSkillDeleteForm = deleteForm;
+            document.getElementById('skill-delete-modal').showPopover();
         });
+
+        const confirmSkillDeleteButton = document.getElementById('confirm-skill-delete');
+
+        if (confirmSkillDeleteButton) {
+            confirmSkillDeleteButton.addEventListener('click', function() {
+                if (!pendingSkillDeleteForm) return;
+
+                const deleteForm = pendingSkillDeleteForm;
+                pendingSkillDeleteForm = null;
+
+                document.getElementById('skill-delete-modal').hidePopover();
+                deleteSkill(deleteForm);
+            });
+        }
 
         // Mengirim data form ke server
         async function addSkill(event) {

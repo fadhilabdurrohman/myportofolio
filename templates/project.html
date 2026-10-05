@@ -56,6 +56,49 @@
     {% if user.is_superuser %}
         {% include "components/project_form_modal.html" %}
     {% endif %}
+    {% if user.is_superuser %}
+        <div id="project-delete-modal"
+            class="project-delete-modal"
+            popover="auto"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="project-delete-modal-title">
+
+            <button type="button"
+                    class="project-delete-modal__backdrop"
+                    popovertarget="project-delete-modal"
+                    popovertargetaction="hide"
+                    aria-label="Close delete confirmation"></button>
+
+            <div class="project-delete-modal__content">
+                <button type="button"
+                        class="project-delete-modal__close"
+                        popovertarget="project-delete-modal"
+                        popovertargetaction="hide"
+                        aria-label="Close delete confirmation">
+                    ×
+                </button>
+
+                <h2 id="project-delete-modal-title">Delete Project</h2>
+                <p>Are you sure you want to delete this project?</p>
+
+                <div class="project-delete-modal__actions">
+                    <button type="button"
+                            class="button button-secondary"
+                            popovertarget="project-delete-modal"
+                            popovertargetaction="hide">
+                        Cancel
+                    </button>
+
+                    <button type="button"
+                            id="confirm-project-delete"
+                            class="button button-danger">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    {% endif %}
     <script>
         // Konfigurasi
         const BASE_PROJECTS_ENDPOINT = "{% url 'main:get_projects_json' %}";
@@ -153,8 +196,7 @@
                         data-delete-url="${deleteAjaxUrl}">
                         {% csrf_token %}
                         <button type="submit"
-                                class="button button-danger"
-                                onclick="return confirm('Are you sure you want to delete this project?');">
+                                class="button button-danger">
                             Delete
                         </button>
                     </form>
@@ -427,14 +469,30 @@
             toggleProjectStar(starForm);
         });
 
+        let pendingProjectDeleteForm = null;
         gridContainer.addEventListener('submit', function(event) {
             const deleteForm = event.target.closest('.delete-form');
 
             if (!deleteForm) return;
 
             event.preventDefault();
-            deleteProject(deleteForm);
+            pendingProjectDeleteForm = deleteForm;
+            document.getElementById('project-delete-modal').showPopover();
         });
+
+        const confirmProjectDeleteButton = document.getElementById('confirm-project-delete');
+
+        if (confirmProjectDeleteButton) {
+            confirmProjectDeleteButton.addEventListener('click', function() {
+                if (!pendingProjectDeleteForm) return;
+
+                const deleteForm = pendingProjectDeleteForm;
+                pendingProjectDeleteForm = null;
+
+                document.getElementById('project-delete-modal').hidePopover();
+                deleteProject(deleteForm);
+            });
+        }
 
         // Mengirim data form ke server
         async function addProject(event) {

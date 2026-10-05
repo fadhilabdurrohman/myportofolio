@@ -56,6 +56,49 @@
     {% if user.is_superuser %}
         {% include "components/experience_form_modal.html" %}
     {% endif %}
+    {% if user.is_superuser %}
+        <div id="experience-delete-modal"
+            class="experience-delete-modal"
+            popover="auto"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="experience-delete-modal-title">
+
+            <button type="button"
+                    class="experience-delete-modal__backdrop"
+                    popovertarget="experience-delete-modal"
+                    popovertargetaction="hide"
+                    aria-label="Close delete confirmation"></button>
+
+            <div class="experience-delete-modal__content">
+                <button type="button"
+                        class="experience-delete-modal__close"
+                        popovertarget="experience-delete-modal"
+                        popovertargetaction="hide"
+                        aria-label="Close delete confirmation">
+                    ×
+                </button>
+
+                <h2 id="experience-delete-modal-title">Delete Experience</h2>
+                <p>Are you sure you want to delete this experience?</p>
+
+                <div class="experience-delete-modal__actions">
+                    <button type="button"
+                            class="button button-secondary"
+                            popovertarget="experience-delete-modal"
+                            popovertargetaction="hide">
+                        Cancel
+                    </button>
+
+                    <button type="button"
+                            id="confirm-experience-delete"
+                            class="button button-danger">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    {% endif %}
     <script>
         // Konfigurasi
         const BASE_EXPERIENCES_ENDPOINT = "{% url 'main:get_experience_json' %}";
@@ -180,8 +223,7 @@
                         data-delete-url="${deleteAjaxUrl}">
                         {% csrf_token %}
                         <button type="submit"
-                                class="button button-danger"
-                                onclick="return confirm('Are you sure you want to delete this experience?');">
+                                class="button button-danger">
                             Delete
                         </button>
                     </form>
@@ -466,14 +508,30 @@
             toggleExperienceStar(starForm);
         });
 
+        let pendingExperienceDeleteForm = null;
         gridContainer.addEventListener('submit', function(event) {
             const deleteForm = event.target.closest('.delete-form');
 
             if (!deleteForm) return;
 
             event.preventDefault();
-            deleteExperience(deleteForm);
+            pendingExperienceDeleteForm = deleteForm;
+            document.getElementById('experience-delete-modal').showPopover();
         });
+
+        const confirmExperienceDeleteButton = document.getElementById('confirm-experience-delete');
+
+        if (confirmExperienceDeleteButton) {
+            confirmExperienceDeleteButton.addEventListener('click', function() {
+                if (!pendingExperienceDeleteForm) return;
+
+                const deleteForm = pendingExperienceDeleteForm;
+                pendingExperienceDeleteForm = null;
+
+                document.getElementById('experience-delete-modal').hidePopover();
+                deleteExperience(deleteForm);
+            });
+        }
 
         // Mengirim data form ke server
         async function addExperience(event) {
