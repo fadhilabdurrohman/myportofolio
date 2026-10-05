@@ -4,6 +4,7 @@ from django.utils.html import strip_tags
 
 from main.models import Skill, Project, Experience
 
+
 # Skill form
 class SkillForm(ModelForm):
     class Meta:
@@ -39,6 +40,23 @@ class SkillForm(ModelForm):
                 }
             )
         }
+
+    def clean_name(self):
+        name = strip_tags(self.cleaned_data["name"]).strip()
+
+        if not name:
+            raise ValidationError("Skill name cannot contain only HTML tags.")
+
+        return name
+
+    def clean_icon(self):
+        icon = strip_tags(self.cleaned_data["icon"]).strip()
+
+        if not icon:
+            raise ValidationError("Icon filename cannot contain only HTML tags.")
+
+        return icon
+
 
 # Project form
 class ProjectForm(ModelForm):
@@ -88,7 +106,7 @@ class ProjectForm(ModelForm):
                     'maxlength': 255,
                 }
             ),
-            'url': URLInput(    
+            'url': URLInput(     
                 attrs={
                     'placeholder': 'Enter project URL'
                 }
@@ -104,19 +122,26 @@ class ProjectForm(ModelForm):
         title = strip_tags(self.cleaned_data["title"]).strip()
 
         if not title:
-            raise ValidationError("Nama proyek tidak boleh hanya berisi tag HTML.")
+            raise ValidationError("Project title cannot contain only HTML tags.")
 
         return title
 
     def clean_project_type(self):
-        return strip_tags(
-            self.cleaned_data["project_type"]
-        ).strip()
+        project_type = strip_tags(self.cleaned_data["project_type"]).strip()
+
+        if not project_type:
+            raise ValidationError("Project type cannot contain only HTML tags.")
+
+        return project_type
 
     def clean_description(self):
-        return strip_tags(
-            self.cleaned_data["description"]
-        ).strip()
+        description = strip_tags(self.cleaned_data["description"]).strip()
+
+        if not description:
+            raise ValidationError("Project description cannot contain only HTML tags.")
+
+        return description
+
 
 # Experience form
 class ExperienceForm(ModelForm):
@@ -133,13 +158,13 @@ class ExperienceForm(ModelForm):
         ]
 
         labels = {
-                'title': 'Title',
-                'organization': 'Organization',
-                'description': 'Description',
-                'category': 'Category',
-                'thumbnail': 'Thumbnail',
-                'started_at': 'Start Date',
-                'ended_at': 'End Date',
+            'title': 'Title',
+            'organization': 'Organization',
+            'description': 'Description',
+            'category': 'Category',
+            'thumbnail': 'Thumbnail',
+            'started_at': 'Start Date',
+            'ended_at': 'End Date',
         }
 
         widgets = {
@@ -182,3 +207,27 @@ class ExperienceForm(ModelForm):
                 }
             )
         }
+
+    def clean_title(self):
+        title = strip_tags(self.cleaned_data["title"]).strip()
+
+        if not title:
+            raise ValidationError("Experience title cannot contain only HTML tags.")
+
+        return title
+
+    def clean_organization(self):
+        organization = strip_tags(self.cleaned_data["organization"]).strip()
+
+        if not organization:
+            raise ValidationError("Organization cannot contain only HTML tags.")
+
+        return organization
+
+    def clean_description(self):
+        description = strip_tags(self.cleaned_data["description"]).strip()
+
+        if not description:
+            raise ValidationError("Experience description cannot contain only HTML tags.")
+
+        return description
