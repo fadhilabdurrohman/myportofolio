@@ -433,6 +433,31 @@ def toggle_experience_star(request, experience_id):
     return redirect("main:show_experience")
 
 @require_POST
+def create_skill_ajax(request):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan skill."},
+            status=403,
+        )
+
+    form = SkillForm(request.POST)
+
+    if form.is_valid():
+        skill = form.save()
+        return JsonResponse(
+            {
+                "message": "Skill berhasil ditambahkan.",
+                "pk": str(skill.id),
+            },
+            status=201,
+        )
+
+    return JsonResponse(
+        {"errors": form.errors.get_json_data()},
+        status=400,
+    )
+
+@require_POST
 def create_project_ajax(request):
     if not request.user.is_superuser:
         return JsonResponse(
@@ -449,3 +474,28 @@ def create_project_ajax(request):
         )
 
     return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
+
+@require_POST
+def create_experience_ajax(request):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan experience."},
+            status=403,
+        )
+
+    form = ExperienceForm(request.POST)
+
+    if form.is_valid():
+        experience = form.save()
+        return JsonResponse(
+            {
+                "message": "Experience berhasil ditambahkan.",
+                "pk": str(experience.id),
+            },
+            status=201,
+        )
+
+    return JsonResponse(
+        {"errors": form.errors.get_json_data()},
+        status=400,
+    )
