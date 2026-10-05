@@ -40,20 +40,13 @@ def show_main(request):
 
 # Display the skill page
 def show_skill(request):
-    json_response = get_skills_json(request)
-    
-    skills = serializers.deserialize(
-        "json",
-        json_response.content.decode("utf-8"),
-    )
-    skills = [skill.object for skill in skills]
-    title_query = request.GET.get("name", "").strip()
+    name_query = request.GET.get("name", "").strip()
 
     context = {
         "name": "Fadhil Abdurrohman",
         "nickname": "Fadhil",
-        "skill_list": skills,
-        "title_query": title_query,
+        "name_query": name_query,
+        "form": SkillForm(),
         "is_editor": is_editor(request.user),
     }
 
@@ -68,25 +61,19 @@ def show_project(request):
         "nickname": "Fadhil",
         "title_query": title_query,
         "form": ProjectForm(),
+        "is_editor": is_editor(request.user),
     }
     return render(request, "project.html", context)
 
 # Display the experience page
 def show_experience(request):
-    json_response = get_experience_json(request)
-    
-    experiences = serializers.deserialize(
-        "json",
-        json_response.content.decode("utf-8"),
-    )
-    experiences = [experience.object for experience in experiences]
     title_query = request.GET.get("title", "").strip()
     
     context = {
         "name": "Fadhil Abdurrohman",
         "nickname": "Fadhil",
-        "experience_list": experiences,
         "title_query": title_query,
+        "form": ExperienceForm(),
         "is_editor": is_editor(request.user),
     }
     return render(request, "experience.html", context)
@@ -111,15 +98,34 @@ def create_skill(request):
     return render(request, "skill_form.html", context)
 
 # JSON skill
+# JSON skill
 def get_skills_json(request):
     name_query = request.GET.get("name", "").strip()
-    skills = Skill.objects.all()
+    skills = Skill.objects.prefetch_related("starred_by").all()
 
     if name_query:
         skills = skills.filter(name__icontains=name_query)
 
-    skills_json = serializers.serialize("json", skills, use_natural_foreign_keys=True)
-    return HttpResponse(skills_json, content_type="application/json")
+    # Konstruksi data JSON secara manual agar bisa menyisipkan logika Star
+    data = []
+    for skill in skills:
+        starred_users = skill.starred_by.all()
+        is_starred = request.user in starred_users if request.user.is_authenticated else False
+        starred_by_names = ", ".join([u.username for u in starred_users])
+
+        data.append({
+            "pk": str(skill.id),
+            "fields": {
+                "name": skill.name,
+                "url": skill.url,
+                "icon": skill.icon,
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+                "starred_by_names": starred_by_names,
+            }
+        })
+
+    return JsonResponse(data, safe=False)
 
 # Delete skill
 @login_required(login_url="/login/")
@@ -274,15 +280,38 @@ def create_experience(request):
     return render(request, "experience_form.html", context)
 
 # JSON experience
+# JSON experience
 def get_experience_json(request):
     title_query = request.GET.get("title", "").strip()
-    experiences = Experience.objects.all()
+    experiences = Experience.objects.prefetch_related("starred_by").all()
 
     if title_query:
         experiences = experiences.filter(title__icontains=title_query)
 
-    experiences_json = serializers.serialize("json", experiences, use_natural_foreign_keys=True)
-    return HttpResponse(experiences_json, content_type="application/json")
+    # Konstruksi data JSON secara manual agar bisa menyisipkan logika Star
+    data = []
+    for experience in experiences:
+        starred_users = experience.starred_by.all()
+        is_starred = request.user in starred_users if request.user.is_authenticated else False
+        starred_by_names = ", ".join([u.username for u in starred_users])
+
+        data.append({
+            "pk": str(experience.id),
+            "fields": {
+                "title": experience.title,
+                "organization": experience.organization,
+                "description": experience.description,
+                "category": experience.category,
+                "started_at": experience.started_at,
+                "ended_at": experience.ended_at,
+                "thumbnail": experience.thumbnail,
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+                "starred_by_names": starred_by_names,
+            }
+        })
+
+    return JsonResponse(data, safe=False)
 
 # Delete experience
 @login_required(login_url="/login/")
@@ -404,6 +433,31 @@ def toggle_experience_star(request, experience_id):
     return redirect("main:show_experience")
 
 @require_POST
+def create_skill_ajax(request):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan skill."},
+            status=403,
+        )
+
+    form = SkillForm(request.POST)
+
+    if form.is_valid():
+        skill = form.save()
+        return JsonResponse(
+            {
+                "message": "Skill berhasil ditambahkan.",
+                "pk": str(skill.id),
+            },
+            status=201,
+        )
+
+    return JsonResponse(
+        {"errors": form.errors.get_json_data()},
+        status=400,
+    )
+
+@require_POST
 def create_project_ajax(request):
     if not request.user.is_superuser:
         return JsonResponse(
@@ -420,3 +474,304 @@ def create_project_ajax(request):
         )
 
     return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
+
+@require_POST
+def create_experience_ajax(request):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan experience."},
+            status=403,
+        )
+
+    form = ExperienceForm(request.POST)
+
+    if form.is_valid():
+        experience = form.save()
+        return JsonResponse(
+            {
+                "message": "Experience berhasil ditambahkan.",
+                "pk": str(experience.id),
+            },
+            status=201,
+        )
+
+    return JsonResponse(
+        {"errors": form.errors.get_json_data()},
+        status=400,
+    )
+
+# Skill star AJAX
+@require_POST
+def toggle_skill_star_ajax(request, skill_id):
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {"message": "You must be logged in to star a skill."},
+            status=401,
+        )
+
+    skill = get_object_or_404(Skill, pk=skill_id)
+
+    if request.user in skill.starred_by.all():
+        skill.starred_by.remove(request.user)
+        is_starred = False
+    else:
+        skill.starred_by.add(request.user)
+        is_starred = True
+
+    return JsonResponse({
+        "is_starred": is_starred,
+        "star_count": skill.starred_by.count(),
+    })
+
+
+# Project star AJAX
+@require_POST
+def toggle_project_star_ajax(request, project_id):
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {"message": "You must be logged in to star a project."},
+            status=401,
+        )
+
+    project = get_object_or_404(Project, pk=project_id)
+
+    if request.user in project.starred_by.all():
+        project.starred_by.remove(request.user)
+        is_starred = False
+    else:
+        project.starred_by.add(request.user)
+        is_starred = True
+
+    return JsonResponse({
+        "is_starred": is_starred,
+        "star_count": project.starred_by.count(),
+    })
+
+
+# Experience star AJAX
+@require_POST
+def toggle_experience_star_ajax(request, experience_id):
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {"message": "You must be logged in to star an experience."},
+            status=401,
+        )
+
+    experience = get_object_or_404(Experience, pk=experience_id)
+
+    if request.user in experience.starred_by.all():
+        experience.starred_by.remove(request.user)
+        is_starred = False
+    else:
+        experience.starred_by.add(request.user)
+        is_starred = True
+
+    return JsonResponse({
+        "is_starred": is_starred,
+        "star_count": experience.starred_by.count(),
+    })
+
+# Delete skill AJAX
+@require_POST
+def delete_skill_ajax(request, skill_id):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Only the portfolio owner can delete a skill."},
+            status=403,
+        )
+
+    skill = get_object_or_404(Skill, pk=skill_id)
+    skill.delete()
+
+    return JsonResponse(
+        {"message": "Skill deleted successfully."},
+        status=200,
+    )
+
+
+# Delete project AJAX
+@require_POST
+def delete_project_ajax(request, project_id):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Only the portfolio owner can delete a project."},
+            status=403,
+        )
+
+    project = get_object_or_404(Project, pk=project_id)
+    project.delete()
+
+    return JsonResponse(
+        {"message": "Project deleted successfully."},
+        status=200,
+    )
+
+
+# Delete experience AJAX
+@require_POST
+def delete_experience_ajax(request, experience_id):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Only the portfolio owner can delete an experience."},
+            status=403,
+        )
+
+    experience = get_object_or_404(Experience, pk=experience_id)
+    experience.delete()
+
+    return JsonResponse(
+        {"message": "Experience deleted successfully."},
+        status=200,
+    )
+
+# Update skill AJAX
+@require_POST
+def update_skill_ajax(request, skill_id):
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {"message": "You must be logged in to update a skill."},
+            status=401,
+        )
+
+    if not request.user.is_superuser and not is_editor(request.user):
+        return JsonResponse(
+            {"message": "You do not have permission to update this skill."},
+            status=403,
+        )
+
+    skill = get_object_or_404(Skill, pk=skill_id)
+    form = SkillForm(request.POST, instance=skill)
+
+    if form.is_valid():
+        skill = form.save()
+        starred_users = skill.starred_by.all()
+
+        return JsonResponse({
+            "message": "Skill updated successfully.",
+            "item": {
+                "pk": str(skill.id),
+                "fields": {
+                    "name": skill.name,
+                    "icon": skill.icon,
+                    "url": skill.url,
+                    "star_count": starred_users.count(),
+                    "is_starred": request.user in starred_users,
+                    "starred_by_names": ", ".join(
+                        [user.username for user in starred_users]
+                    ),
+                }
+            }
+        })
+
+    return JsonResponse(
+        {"errors": form.errors.get_json_data()},
+        status=400,
+    )
+
+
+# Update project AJAX
+@require_POST
+def update_project_ajax(request, project_id):
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {"message": "You must be logged in to update a project."},
+            status=401,
+        )
+
+    if not request.user.is_superuser and not is_editor(request.user):
+        return JsonResponse(
+            {"message": "You do not have permission to update this project."},
+            status=403,
+        )
+
+    project = get_object_or_404(Project, pk=project_id)
+    form = ProjectForm(request.POST, instance=project)
+
+    if form.is_valid():
+        project = form.save()
+        starred_users = project.starred_by.all()
+
+        return JsonResponse({
+            "message": "Project updated successfully.",
+            "item": {
+                "pk": str(project.id),
+                "fields": {
+                    "title": project.title,
+                    "description": project.description,
+                    "year": project.year,
+                    "project_type": project.project_type,
+                    "url": project.url,
+                    "thumbnail": project.thumbnail,
+                    "star_count": starred_users.count(),
+                    "is_starred": request.user in starred_users,
+                    "starred_by_names": ", ".join(
+                        [user.username for user in starred_users]
+                    ),
+                }
+            }
+        })
+
+    return JsonResponse(
+        {"errors": form.errors.get_json_data()},
+        status=400,
+    )
+
+
+# Update experience AJAX
+@require_POST
+def update_experience_ajax(request, experience_id):
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {"message": "You must be logged in to update an experience."},
+            status=401,
+        )
+
+    if not request.user.is_superuser and not is_editor(request.user):
+        return JsonResponse(
+            {"message": "You do not have permission to update this experience."},
+            status=403,
+        )
+
+    experience = get_object_or_404(
+        Experience,
+        pk=experience_id
+    )
+
+    form = ExperienceForm(
+        request.POST,
+        instance=experience
+    )
+
+    if form.is_valid():
+        experience = form.save()
+        starred_users = experience.starred_by.all()
+
+        return JsonResponse({
+            "message": "Experience updated successfully.",
+            "item": {
+                "pk": str(experience.id),
+                "fields": {
+                    "title": experience.title,
+                    "organization": experience.organization,
+                    "description": experience.description,
+                    "category": experience.category,
+                    "thumbnail": experience.thumbnail,
+                    "started_at": experience.started_at.isoformat(),
+                    "ended_at": (
+                        experience.ended_at.isoformat()
+                        if experience.ended_at
+                        else None
+                    ),
+                    "star_count": starred_users.count(),
+                    "is_starred": request.user in starred_users,
+                    "starred_by_names": ", ".join(
+                        [user.username for user in starred_users]
+                    ),
+                }
+            }
+        })
+
+    return JsonResponse(
+        {"errors": form.errors.get_json_data()},
+        status=400,
+    )
