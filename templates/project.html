@@ -99,12 +99,16 @@
             </div>
         </div>
     {% endif %}
+    {% if user.is_superuser or is_editor %}
+        {% include "components/project_edit_modal.html" %}
+    {% endif %}
     <script>
         // Konfigurasi
         const BASE_PROJECTS_ENDPOINT = "{% url 'main:get_projects_json' %}";
         const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
         const IS_EDITOR = "{{ is_editor|yesno:'true,false' }}" === "true";
         const CAN_EDIT = IS_SUPERUSER || IS_EDITOR;
+        const projectDataById = new Map();
         let projectsAbortController;
 
         // Elemen DOM
@@ -188,6 +192,12 @@
                     projectId
                 );
 
+            const updateAjaxUrl = "{% url 'main:update_project_ajax' '00000000-0000-0000-0000-000000000000' %}"
+                .replace(
+                    '00000000-0000-0000-0000-000000000000',
+                    projectId
+                );
+
             const deleteHtml = IS_SUPERUSER
                 ? `
                     <form method="post"
@@ -204,7 +214,10 @@
                 : '';
 
             const editHtml = `
-                <a href="${updateUrl}" class="button edit-button">
+                <a href="${updateUrl}"
+                    class="button edit-button"
+                    data-project-id="${projectId}"
+                    data-update-url="${updateAjaxUrl}">
                     Edit
                 </a>
             `;
@@ -299,6 +312,14 @@
 
                 const projectData = await response.json();
 
+                projectDataById.clear();
+                projectData.forEach(item => {
+                    projectDataById.set(
+                        String(item.pk),
+                        item.fields
+                    );
+                });
+
                 if (projectData.length === 0) {
                     displayPageSection({ showEmpty: true });
                 } else {
@@ -355,6 +376,108 @@
                 }
             }
             return cookieValue;
+        }
+
+        const editProjectModal = document.getElementById('edit-project-modal');
+        const editProjectForm = document.getElementById('edit-project-form');
+        let pendingProjectEditCard = null;
+
+        // Membuka modal edit project
+        gridContainer.addEventListener('click', function(event) {
+            const editButton = event.target.closest('.edit-button');
+
+            if (!editButton || !editProjectModal || !editProjectForm) return;
+
+            event.preventDefault();
+
+            const projectId = editButton.dataset.projectId;
+            const project = projectDataById.get(projectId);
+
+            if (!project) return;
+
+            pendingProjectEditCard = editButton.closest('.project-item');
+            editProjectForm.dataset.updateUrl = editButton.dataset.updateUrl;
+
+            editProjectForm.elements['title'].value = project.title ?? '';
+            editProjectForm.elements['description'].value = project.description ?? '';
+            editProjectForm.elements['year'].value = project.year ?? '';
+            editProjectForm.elements['project_type'].value = project.project_type ?? '';
+            editProjectForm.elements['url'].value = project.url ?? '';
+            editProjectForm.elements['thumbnail'].value = project.thumbnail ?? '';
+
+            editProjectModal.showPopover();
+        });
+
+        // Mengirim update project ke server
+        async function updateProject(event) {
+            event.preventDefault();
+
+            const submitButton = editProjectForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+
+            try {
+                const response = await fetch(editProjectForm.dataset.updateUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Accept': 'application/json',
+                    },
+                    body: new FormData(editProjectForm),
+                });
+
+                const result = await response.json().catch(() => ({}));
+
+                if (response.ok) {
+                    const updatedItem = result.item;
+
+                    projectDataById.set(
+                        String(updatedItem.pk),
+                        updatedItem.fields
+                    );
+
+                    if (pendingProjectEditCard) {
+                        pendingProjectEditCard.replaceWith(
+                            buildProjectCardElement(updatedItem)
+                        );
+                    }
+
+                    editProjectModal.hidePopover();
+                    pendingProjectEditCard = null;
+
+                    showToast(
+                        'Success',
+                        'Project updated successfully!',
+                        'success'
+                    );
+                } else {
+                    const errorMessages = result.errors
+                        ? Object.values(result.errors).flat().map(error => error.message)
+                        : [result.message || `An error occurred (status ${response.status}).`];
+
+                    showToast(
+                        'Failed to update project',
+                        errorMessages.join(' '),
+                        'error'
+                    );
+                }
+            } catch (error) {
+                console.error('Error updating project:', error);
+
+                showToast(
+                    'Failed to update project',
+                    'Unable to connect to the server. Please try again.',
+                    'error'
+                );
+            } finally {
+                submitButton.disabled = false;
+            }
+        }
+
+        if (editProjectForm) {
+            editProjectForm.addEventListener(
+                'submit',
+                updateProject
+            );
         }
 
         // Mengirim star/unstar ke server

@@ -99,12 +99,16 @@
             </div>
         </div>
     {% endif %}
+    {% if user.is_superuser or is_editor %}
+        {% include "components/experience_edit_modal.html" %}
+    {% endif %}
     <script>
         // Konfigurasi
         const BASE_EXPERIENCES_ENDPOINT = "{% url 'main:get_experience_json' %}";
         const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
         const IS_EDITOR = "{{ is_editor|yesno:'true,false' }}" === "true";
         const CAN_EDIT = IS_SUPERUSER || IS_EDITOR;
+        const experienceDataById = new Map();
         let experiencesAbortController;
 
         // Elemen DOM
@@ -215,6 +219,12 @@
                     experienceId
                 );
 
+            const updateAjaxUrl = "{% url 'main:update_experience_ajax' '00000000-0000-0000-0000-000000000000' %}"
+                .replace(
+                    '00000000-0000-0000-0000-000000000000',
+                    experienceId
+                );
+
             const deleteHtml = IS_SUPERUSER
                 ? `
                     <form method="post"
@@ -231,7 +241,10 @@
                 : '';
 
             const editHtml = `
-                <a href="${updateUrl}" class="button edit-button">
+                <a href="${updateUrl}"
+                    class="button edit-button"
+                    data-experience-id="${experienceId}"
+                    data-update-url="${updateAjaxUrl}">
                     Edit
                 </a>
             `;
@@ -329,6 +342,13 @@
                 if (!response.ok) throw new Error('Failed to fetch data');
 
                 const experienceData = await response.json();
+                experienceDataById.clear();
+                experienceData.forEach(item => {
+                    experienceDataById.set(
+                        String(item.pk),
+                        item.fields
+                    );
+                });
 
                 if (experienceData.length === 0) {
                     displayPageSection({ showEmpty: true });
@@ -394,6 +414,109 @@
                 }
             }
             return cookieValue;
+        }
+
+        const editExperienceModal = document.getElementById('edit-experience-modal');
+        const editExperienceForm = document.getElementById('edit-experience-form');
+        let pendingExperienceEditCard = null;
+
+        // Membuka modal edit experience
+        gridContainer.addEventListener('click', function(event) {
+            const editButton = event.target.closest('.edit-button');
+
+            if (!editButton || !editExperienceModal || !editExperienceForm) return;
+
+            event.preventDefault();
+
+            const experienceId = editButton.dataset.experienceId;
+            const experience = experienceDataById.get(experienceId);
+
+            if (!experience) return;
+
+            pendingExperienceEditCard = editButton.closest('.experience-item');
+            editExperienceForm.dataset.updateUrl = editButton.dataset.updateUrl;
+
+            editExperienceForm.elements['title'].value = experience.title ?? '';
+            editExperienceForm.elements['organization'].value = experience.organization ?? '';
+            editExperienceForm.elements['description'].value = experience.description ?? '';
+            editExperienceForm.elements['category'].value = experience.category ?? '';
+            editExperienceForm.elements['thumbnail'].value = experience.thumbnail ?? '';
+            editExperienceForm.elements['started_at'].value = experience.started_at ?? '';
+            editExperienceForm.elements['ended_at'].value = experience.ended_at ?? '';
+
+            editExperienceModal.showPopover();
+        });
+
+        // Mengirim update experience ke server
+        async function updateExperience(event) {
+            event.preventDefault();
+
+            const submitButton = editExperienceForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+
+            try {
+                const response = await fetch(editExperienceForm.dataset.updateUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Accept': 'application/json',
+                    },
+                    body: new FormData(editExperienceForm),
+                });
+
+                const result = await response.json().catch(() => ({}));
+
+                if (response.ok) {
+                    const updatedItem = result.item;
+
+                    experienceDataById.set(
+                        String(updatedItem.pk),
+                        updatedItem.fields
+                    );
+
+                    if (pendingExperienceEditCard) {
+                        pendingExperienceEditCard.replaceWith(
+                            buildExperienceCardElement(updatedItem)
+                        );
+                    }
+
+                    editExperienceModal.hidePopover();
+                    pendingExperienceEditCard = null;
+
+                    showToast(
+                        'Success',
+                        'Experience updated successfully!',
+                        'success'
+                    );
+                } else {
+                    const errorMessages = result.errors
+                        ? Object.values(result.errors).flat().map(error => error.message)
+                        : [result.message || `An error occurred (status ${response.status}).`];
+
+                    showToast(
+                        'Failed to update experience',
+                        errorMessages.join(' '),
+                        'error'
+                    );
+                }
+            } catch (error) {
+                console.error('Error updating experience:', error);
+
+                showToast(
+                    'Failed to update experience',
+                    'Unable to connect to the server. Please try again.',
+                    'error'
+                );
+            } finally {
+                submitButton.disabled = false;
+            }
+        }
+
+        if (editExperienceForm) {
+            editExperienceForm.addEventListener(
+                'submit',
+                updateExperience
+            );
         }
 
         // Mengirim star/unstar ke server

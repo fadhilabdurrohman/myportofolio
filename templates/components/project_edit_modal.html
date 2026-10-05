@@ -1,0 +1,89 @@
+<div id="edit-project-modal"
+     class="project-form-modal"
+     popover="auto"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="edit-project-modal-title">
+
+    <button type="button"
+            class="project-form-modal__backdrop"
+            popovertarget="edit-project-modal"
+            popovertargetaction="hide"
+            aria-label="Close edit project form"></button>
+
+    <div class="project-form-modal__content">
+        <button type="button"
+                class="project-form-modal__close"
+                popovertarget="edit-project-modal"
+                popovertargetaction="hide"
+                aria-label="Close edit project form">
+            ×
+        </button>
+
+        <h2 id="edit-project-modal-title">Edit Project</h2>
+
+        <form id="edit-project-form"
+              method="post"
+              class="project-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="edit-project-title">Title</label>
+                <input type="text"
+                       name="title"
+                       id="edit-project-title"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="edit-project-description">Description</label>
+                <textarea name="description"
+                          id="edit-project-description"
+                          required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="edit-project-year">Year</label>
+                <input type="number"
+                       name="year"
+                       id="edit-project-year"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="edit-project-type">Project Type</label>
+                <input type="text"
+                       name="project_type"
+                       id="edit-project-type"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="edit-project-url">URL</label>
+                <input type="url"
+                       name="url"
+                       id="edit-project-url">
+            </div>
+
+            <div class="form-group">
+                <label for="edit-project-thumbnail">Thumbnail</label>
+                <input type="url"
+                       name="thumbnail"
+                       id="edit-project-thumbnail">
+            </div>
+
+            <div class="project-form-modal__actions">
+                <button type="button"
+                        class="button button-secondary"
+                        popovertarget="edit-project-modal"
+                        popovertargetaction="hide">
+                    Cancel
+                </button>
+
+                <button type="submit" class="button">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -35,4 +35,7 @@ urlpatterns = [
     path("skill/<uuid:skill_id>/delete-ajax/", delete_skill_ajax, name="delete_skill_ajax"),
     path("project/<uuid:project_id>/delete-ajax/", delete_project_ajax, name="delete_project_ajax"),
     path("experience/<uuid:experience_id>/delete-ajax/", delete_experience_ajax, name="delete_experience_ajax"),
+    path("skill/<uuid:skill_id>/update-ajax/", update_skill_ajax, name="update_skill_ajax"),
+    path("project/<uuid:project_id>/update-ajax/", update_project_ajax, name="update_project_ajax"),
+    path("experience/<uuid:experience_id>/update-ajax/", update_experience_ajax, name="update_experience_ajax"),
 ]

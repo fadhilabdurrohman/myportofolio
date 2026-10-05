@@ -100,6 +100,9 @@
             </div>
         </div>
     {% endif %}
+    {% if user.is_superuser or is_editor %}
+        {% include "components/skill_edit_modal.html" %}
+    {% endif %}
     <script>
         // Konfigurasi
         const BASE_SKILLS_ENDPOINT = "{% url 'main:get_skills_json' %}";
@@ -107,6 +110,7 @@
         const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
         const IS_EDITOR = "{{ is_editor|yesno:'true,false' }}" === "true";
         const CAN_EDIT = IS_SUPERUSER || IS_EDITOR;
+        const skillDataById = new Map();
         let skillsAbortController;
 
         // Elemen DOM
@@ -175,6 +179,12 @@
                     skillId
                 );
 
+            const updateAjaxUrl = "{% url 'main:update_skill_ajax' '00000000-0000-0000-0000-000000000000' %}"
+                .replace(
+                    '00000000-0000-0000-0000-000000000000',
+                    skillId
+                );
+
             const deleteHtml = IS_SUPERUSER
                 ? `
                     <form method="post"
@@ -191,7 +201,10 @@
                 : '';
 
             const editHtml = `
-                <a href="${updateUrl}" class="edit-skill-button">
+                <a href="${updateUrl}"
+                    class="edit-skill-button"
+                    data-skill-id="${skillId}"
+                    data-update-url="${updateAjaxUrl}">
                     &#9998;
                 </a>
             `;
@@ -276,6 +289,13 @@
                 if (!response.ok) throw new Error('Failed to fetch data');
 
                 const skillData = await response.json();
+                skillDataById.clear();
+                skillData.forEach(item => {
+                    skillDataById.set(
+                        String(item.pk),
+                        item.fields
+                    );
+                });
 
                 if (skillData.length === 0) {
                     displayPageSection({ showEmpty: true });
@@ -341,6 +361,105 @@
                 }
             }
             return cookieValue;
+        }
+
+        const editSkillModal = document.getElementById('edit-skill-modal');
+        const editSkillForm = document.getElementById('edit-skill-form');
+        let pendingSkillEditCard = null;
+
+        // Membuka modal edit skill
+        gridContainer.addEventListener('click', function(event) {
+            const editButton = event.target.closest('.edit-skill-button');
+
+            if (!editButton || !editSkillModal || !editSkillForm) return;
+
+            event.preventDefault();
+
+            const skillId = editButton.dataset.skillId;
+            const skill = skillDataById.get(skillId);
+
+            if (!skill) return;
+
+            pendingSkillEditCard = editButton.closest('.skill-item');
+            editSkillForm.dataset.updateUrl = editButton.dataset.updateUrl;
+
+            editSkillForm.elements['name'].value = skill.name ?? '';
+            editSkillForm.elements['icon'].value = skill.icon ?? '';
+            editSkillForm.elements['url'].value = skill.url ?? '';
+
+            editSkillModal.showPopover();
+        });
+
+        // Mengirim update skill ke server
+        async function updateSkill(event) {
+            event.preventDefault();
+
+            const submitButton = editSkillForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+
+            try {
+                const response = await fetch(editSkillForm.dataset.updateUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Accept': 'application/json',
+                    },
+                    body: new FormData(editSkillForm),
+                });
+
+                const result = await response.json().catch(() => ({}));
+
+                if (response.ok) {
+                    const updatedItem = result.item;
+
+                    skillDataById.set(
+                        String(updatedItem.pk),
+                        updatedItem.fields
+                    );
+
+                    if (pendingSkillEditCard) {
+                        pendingSkillEditCard.replaceWith(
+                            buildSkillCardElement(updatedItem)
+                        );
+                    }
+
+                    editSkillModal.hidePopover();
+                    pendingSkillEditCard = null;
+
+                    showToast(
+                        'Success',
+                        'Skill updated successfully!',
+                        'success'
+                    );
+                } else {
+                    const errorMessages = result.errors
+                        ? Object.values(result.errors).flat().map(error => error.message)
+                        : [result.message || `An error occurred (status ${response.status}).`];
+
+                    showToast(
+                        'Failed to update skill',
+                        errorMessages.join(' '),
+                        'error'
+                    );
+                }
+            } catch (error) {
+                console.error('Error updating skill:', error);
+
+                showToast(
+                    'Failed to update skill',
+                    'Unable to connect to the server. Please try again.',
+                    'error'
+                );
+            } finally {
+                submitButton.disabled = false;
+            }
+        }
+
+        if (editSkillForm) {
+            editSkillForm.addEventListener(
+                'submit',
+                updateSkill
+            );
         }
 
         // Mengirim star/unstar ke server
