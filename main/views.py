@@ -570,3 +570,56 @@ def toggle_experience_star_ajax(request, experience_id):
         "is_starred": is_starred,
         "star_count": experience.starred_by.count(),
     })
+
+# Delete skill AJAX
+@require_POST
+def delete_skill_ajax(request, skill_id):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Only the portfolio owner can delete a skill."},
+            status=403,
+        )
+
+    skill = get_object_or_404(Skill, pk=skill_id)
+    skill.delete()
+
+    return JsonResponse(
+        {"message": "Skill deleted successfully."},
+        status=200,
+    )
+
+
+# Delete project AJAX
+@require_POST
+def delete_project_ajax(request, project_id):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Only the portfolio owner can delete a project."},
+            status=403,
+        )
+
+    project = get_object_or_404(Project, pk=project_id)
+    project.delete()
+
+    return JsonResponse(
+        {"message": "Project deleted successfully."},
+        status=200,
+    )
+
+
+# Delete experience AJAX
+@require_POST
+def delete_experience_ajax(request, experience_id):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Only the portfolio owner can delete an experience."},
+            status=403,
+        )
+
+    experience = get_object_or_404(Experience, pk=experience_id)
+    experience.delete()
+
+    return JsonResponse(
+        {"message": "Experience deleted successfully."},
+        status=200,
+    )

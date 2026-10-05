@@ -148,6 +148,12 @@
                     experienceId
                 );
 
+            const deleteAjaxUrl = "{% url 'main:delete_experience_ajax' '00000000-0000-0000-0000-000000000000' %}"
+                .replace(
+                    '00000000-0000-0000-0000-000000000000',
+                    experienceId
+                );
+
             const starUrl = "{% url 'main:toggle_experience_star' '00000000-0000-0000-0000-000000000000' %}"
                 .replace(
                     '00000000-0000-0000-0000-000000000000',
@@ -170,7 +176,8 @@
                 ? `
                     <form method="post"
                         action="${deleteUrl}"
-                        class="delete-form">
+                        class="delete-form"
+                        data-delete-url="${deleteAjaxUrl}">
                         {% csrf_token %}
                         <button type="submit"
                                 class="button button-danger"
@@ -405,6 +412,51 @@
             }
         }
 
+        // Mengirim delete experience ke server
+        async function deleteExperience(form) {
+            const deleteAjaxUrl = form.dataset.deleteUrl;
+            const submitButton = form.querySelector('button[type="submit"]');
+            const experienceCard = form.closest('.experience-item');
+
+            submitButton.disabled = true;
+
+            try {
+                const response = await fetch(deleteAjaxUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Accept': 'application/json',
+                    },
+                });
+
+                const result = await response.json().catch(() => ({}));
+
+                if (response.ok) {
+                    experienceCard.remove();
+                    showToast('Success', 'Experience deleted successfully!', 'success');
+
+                    if (gridContainer.children.length === 0) {
+                        displayPageSection({ showEmpty: true });
+                    }
+                } else {
+                    showToast(
+                        'Failed to delete experience',
+                        result.message || `An error occurred (status ${response.status}).`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                console.error('Error deleting experience:', error);
+                showToast(
+                    'Failed to delete experience',
+                    'Unable to connect to the server. Please try again.',
+                    'error'
+                );
+            } finally {
+                submitButton.disabled = false;
+            }
+        }
+
         gridContainer.addEventListener('submit', function(event) {
             const starForm = event.target.closest('.star-form');
 
@@ -412,6 +464,15 @@
 
             event.preventDefault();
             toggleExperienceStar(starForm);
+        });
+
+        gridContainer.addEventListener('submit', function(event) {
+            const deleteForm = event.target.closest('.delete-form');
+
+            if (!deleteForm) return;
+
+            event.preventDefault();
+            deleteExperience(deleteForm);
         });
 
         // Mengirim data form ke server

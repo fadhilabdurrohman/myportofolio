@@ -108,6 +108,12 @@
                     skillId
                 );
 
+            const deleteAjaxUrl = "{% url 'main:delete_skill_ajax' '00000000-0000-0000-0000-000000000000' %}"
+                .replace(
+                    '00000000-0000-0000-0000-000000000000',
+                    skillId
+                );
+
             const starUrl = "{% url 'main:toggle_skill_star' '00000000-0000-0000-0000-000000000000' %}"
                 .replace(
                     '00000000-0000-0000-0000-000000000000',
@@ -130,7 +136,8 @@
                 ? `
                     <form method="post"
                         action="${deleteUrl}"
-                        class="delete-form">
+                        class="delete-form"
+                        data-delete-url="${deleteAjaxUrl}">
                         {% csrf_token %}
                         <button type="submit"
                                 class="delete-skill-button"
@@ -344,6 +351,51 @@
             }
         }
 
+        // Mengirim delete skill ke server
+        async function deleteSkill(form) {
+            const deleteAjaxUrl = form.dataset.deleteUrl;
+            const submitButton = form.querySelector('button[type="submit"]');
+            const skillCard = form.closest('.skill-item');
+
+            submitButton.disabled = true;
+
+            try {
+                const response = await fetch(deleteAjaxUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Accept': 'application/json',
+                    },
+                });
+
+                const result = await response.json().catch(() => ({}));
+
+                if (response.ok) {
+                    skillCard.remove();
+                    showToast('Success', 'Skill deleted successfully!', 'success');
+
+                    if (gridContainer.children.length === 0) {
+                        displayPageSection({ showEmpty: true });
+                    }
+                } else {
+                    showToast(
+                        'Failed to delete skill',
+                        result.message || `An error occurred (status ${response.status}).`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                console.error('Error deleting skill:', error);
+                showToast(
+                    'Failed to delete skill',
+                    'Unable to connect to the server. Please try again.',
+                    'error'
+                );
+            } finally {
+                submitButton.disabled = false;
+            }
+        }
+
         gridContainer.addEventListener('submit', function(event) {
             const starForm = event.target.closest('.star-form');
 
@@ -351,6 +403,15 @@
 
             event.preventDefault();
             toggleSkillStar(starForm);
+        });
+
+        gridContainer.addEventListener('submit', function(event) {
+            const deleteForm = event.target.closest('.delete-form');
+
+            if (!deleteForm) return;
+
+            event.preventDefault();
+            deleteSkill(deleteForm);
         });
 
         // Mengirim data form ke server
