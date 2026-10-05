@@ -1,38 +1,4 @@
-# Personal Portofolio Website
-
-Nama : **Fadhil Abdurrohman**
-
-NPM : **2506656690**
-
-Kelas : **PBP B**
-
-Website Portofolio pribadi yang dibuat untuk memenuhi Tutorial dan Individual Assignment pada mata kuliah Pemrograman Berbasis Platform (CSGE602022) Ganjil 2026/2027.
-
-Website ini menampilkan ringkasan tentang diri saya, kemampuan, proyek, serta pengalaman dan aktivitas yang pernah saya lakukan.
-
-## Features
-
-- Responsive design
-- Responsive Navigation
-- Light Mode dan Dark Mode
-- Skill, Project, Experience section
-- CRUD operations for Skill, Project, and Experience
-- JSON API for Skill, Project, and Experience
-- Search functionality for Skill, Project, and Experience
-- Star and Unstar functionality
-- User registration and login
-- Session and cookie management
-- Guest, Regular User, Editor, SUperuser roles
-
----
-
-## Tugas Refleksi
-
-- [Tugas refleksi 1](./tugas/tugas1.md)
-- [Tugas refleksi 2](./tugas/tugas2.md)
-- [Tugas refleksi 3](./tugas/tugas3.md)
-- [Tugas refleksi 4](./tugas/tugas4.md)
-- [Tugas refleksi 5](./tugas/tugas5.md)
+## Tugas 5
 
 ### Pertanyaan Reflektif
 
@@ -59,7 +25,7 @@ Tanpa `await`, variabel `response` masih berupa `Promise`, bukan hasil respons s
 
 Dalam pengerjaan tugas ini, saya menggunakan bantuan AI (ChatGPT) untuk membantu memahami konsep AJAX, debouncing, XSS, serta memberikan saran implementasi, debugging, dan perbaikan kode.
 
-[ChatGPT](https://chatgpt.com/share/6ac3cf3a-c024-83ec-ae56-9bc9ba03cdfb)
+[ChatGPT]()
 
 ### Penggunaan AI
 
@@ -83,93 +49,3 @@ Perbaikan manual yang dilakukan:
 
 - [MDN Web Docs - How to use promises](https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Async_JS/Promises)
 - [OWASP - Cross Site Scripting Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)
-
----
-
-## Setup Instruction
-
-### Instalasi
-
-1. Clone repository
-
-```bash
-git clone https://github.com/fadhilabdurrohman/myportofolio.git
-cd myportofolio
-```
-
-2. Buat virtual environment
-
-```bash
-python -m venv env
-```
-
-3. Aktifkan virtual environment
-
-Windows:
-
-```bash
-env\Scripts\activate
-```
-
-Linux/macOS:
-
-```bash
-source venv/bin/activate
-```
-
-4. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-5. Jalankan migrasi database
-
-```bash
-python manage.py migrate
-```
-
-6. Buat superuser
-
-```bash
-python manage.py create superuser
-```
-
-Ikuti instruksi yang diberikan untuk membuat username, email, dan password.
-
-7. Jalankan server
-
-```bash
-python manage.py runserver
-```
-
-8. Buka melalui browser
-
-```
-http://127.0.0.1:8000/
-```
-
-9. Akses Django Admin
-
-Untuk mengelola user dan role Editor, buka:
-
-```
-http://127.0.0.1:8000/admin/
-```
-
-Pada Django Admin, buat Group `Editor` dan masukkan user yang diinginkan ke dalam group tersebut.
-
-11. Pengujian
-
-Gunakan akun dengan _role_ yang sesuai untuk menguji _authentication_, _authorization_, dan fitur Star
-
-- Guest
-- Regular User
-- Editor
-- Superuser
-
-Endpoint JSON dapat diuji melalui:
-
-- `http://127.0.0.1:8000/api/skills/`
-- `http://127.0.0.1:8000/api/projects/`
-- `http://127.0.0.1:8000/api/experiences/`
