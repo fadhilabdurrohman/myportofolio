@@ -499,3 +499,74 @@ def create_experience_ajax(request):
         {"errors": form.errors.get_json_data()},
         status=400,
     )
+
+# Skill star AJAX
+@require_POST
+def toggle_skill_star_ajax(request, skill_id):
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {"message": "You must be logged in to star a skill."},
+            status=401,
+        )
+
+    skill = get_object_or_404(Skill, pk=skill_id)
+
+    if request.user in skill.starred_by.all():
+        skill.starred_by.remove(request.user)
+        is_starred = False
+    else:
+        skill.starred_by.add(request.user)
+        is_starred = True
+
+    return JsonResponse({
+        "is_starred": is_starred,
+        "star_count": skill.starred_by.count(),
+    })
+
+
+# Project star AJAX
+@require_POST
+def toggle_project_star_ajax(request, project_id):
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {"message": "You must be logged in to star a project."},
+            status=401,
+        )
+
+    project = get_object_or_404(Project, pk=project_id)
+
+    if request.user in project.starred_by.all():
+        project.starred_by.remove(request.user)
+        is_starred = False
+    else:
+        project.starred_by.add(request.user)
+        is_starred = True
+
+    return JsonResponse({
+        "is_starred": is_starred,
+        "star_count": project.starred_by.count(),
+    })
+
+
+# Experience star AJAX
+@require_POST
+def toggle_experience_star_ajax(request, experience_id):
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {"message": "You must be logged in to star an experience."},
+            status=401,
+        )
+
+    experience = get_object_or_404(Experience, pk=experience_id)
+
+    if request.user in experience.starred_by.all():
+        experience.starred_by.remove(request.user)
+        is_starred = False
+    else:
+        experience.starred_by.add(request.user)
+        is_starred = True
+
+    return JsonResponse({
+        "is_starred": is_starred,
+        "star_count": experience.starred_by.count(),
+    })

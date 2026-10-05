@@ -1,9 +1,7 @@
 {% extends 'base.html' %}
-
 {% block meta %}
     <title>Experience - {{ name }}</title>
 {% endblock meta %}
-
 {% block content %}
     <main>
         <!-- Experience section -->
@@ -156,6 +154,12 @@
                     experienceId
                 );
 
+            const starAjaxUrl = "{% url 'main:toggle_experience_star_ajax' '00000000-0000-0000-0000-000000000000' %}"
+                .replace(
+                    '00000000-0000-0000-0000-000000000000',
+                    experienceId
+                );
+
             const updateUrl = "{% url 'main:update_experience' '00000000-0000-0000-0000-000000000000' %}"
                 .replace(
                     '00000000-0000-0000-0000-000000000000',
@@ -198,7 +202,8 @@
             const starHtml = `
                 <form method="post"
                     action="${starUrl}"
-                    class="star-form">
+                    class="star-form"
+                    data-star-url="${starAjaxUrl}">
                     {% csrf_token %}
                     <button type="submit"
                             class="button button-star${isStarredClass}"
@@ -341,6 +346,73 @@
             }
             return cookieValue;
         }
+
+        // Mengirim star/unstar ke server
+        async function toggleExperienceStar(form) {
+            const starAjaxUrl = form.dataset.starUrl;
+            const submitButton = form.querySelector('button[type="submit"]');
+
+            submitButton.disabled = true;
+
+            try {
+                const response = await fetch(starAjaxUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Accept': 'application/json',
+                    },
+                });
+
+                const result = await response.json().catch(() => ({}));
+
+                if (response.ok) {
+                    const starText = result.is_starred
+                        ? "Unstar"
+                        : "Star";
+
+                    submitButton.classList.toggle(
+                        'is-starred',
+                        result.is_starred
+                    );
+
+                    submitButton.innerHTML = `
+                        <span aria-hidden="true">★</span>
+                        ${starText}
+                        <span class="star-count">
+                            ${escapeHtml(result.star_count)}
+                        </span>
+                    `;
+
+                    submitButton.title = result.star_count > 0
+                        ? "Starred"
+                        : "Be the first to star";
+                } else {
+                    showToast(
+                        'Failed to update star',
+                        result.message || `An error occurred (status ${response.status}).`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                console.error('Error updating experience star:', error);
+                showToast(
+                    'Failed to update star',
+                    'Unable to connect to the server. Please try again.',
+                    'error'
+                );
+            } finally {
+                submitButton.disabled = false;
+            }
+        }
+
+        gridContainer.addEventListener('submit', function(event) {
+            const starForm = event.target.closest('.star-form');
+
+            if (!starForm) return;
+
+            event.preventDefault();
+            toggleExperienceStar(starForm);
+        });
 
         // Mengirim data form ke server
         async function addExperience(event) {

@@ -1,10 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
-
 {% block meta %}
     <title>Skill - {{ name }}</title>
 {% endblock meta %}
-
 {% block content %}
     <main>
         <!-- Skill section -->
@@ -116,6 +114,12 @@
                     skillId
                 );
 
+            const starAjaxUrl = "{% url 'main:toggle_skill_star_ajax' '00000000-0000-0000-0000-000000000000' %}"
+                .replace(
+                    '00000000-0000-0000-0000-000000000000',
+                    skillId
+                );
+
             const updateUrl = "{% url 'main:update_skill' '00000000-0000-0000-0000-000000000000' %}"
                 .replace(
                     '00000000-0000-0000-0000-000000000000',
@@ -154,7 +158,8 @@
             const starHtml = `
                 <form method="post"
                     action="${starUrl}"
-                    class="star-form">
+                    class="star-form"
+                    data-star-url="${starAjaxUrl}">
                     {% csrf_token %}
                     <button type="submit"
                             class="star-skill-button${isStarredClass}"
@@ -288,6 +293,65 @@
             }
             return cookieValue;
         }
+
+        // Mengirim star/unstar ke server
+        async function toggleSkillStar(form) {
+            const starAjaxUrl = form.dataset.starUrl;
+            const submitButton = form.querySelector('button[type="submit"]');
+
+            submitButton.disabled = true;
+
+            try {
+                const response = await fetch(starAjaxUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Accept': 'application/json',
+                    },
+                });
+
+                const result = await response.json().catch(() => ({}));
+
+                if (response.ok) {
+                    const starCount = submitButton.querySelector('.skill-star-count');
+
+                    submitButton.classList.toggle(
+                        'is-skill-starred',
+                        result.is_starred
+                    );
+
+                    starCount.textContent = result.star_count;
+
+                    submitButton.title = result.star_count > 0
+                        ? "Starred"
+                        : "Be the first to star";
+                } else {
+                    showToast(
+                        'Failed to update star',
+                        result.message || `An error occurred (status ${response.status}).`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                console.error('Error updating skill star:', error);
+                showToast(
+                    'Failed to update star',
+                    'Unable to connect to the server. Please try again.',
+                    'error'
+                );
+            } finally {
+                submitButton.disabled = false;
+            }
+        }
+
+        gridContainer.addEventListener('submit', function(event) {
+            const starForm = event.target.closest('.star-form');
+
+            if (!starForm) return;
+
+            event.preventDefault();
+            toggleSkillStar(starForm);
+        });
 
         // Mengirim data form ke server
         async function addSkill(event) {

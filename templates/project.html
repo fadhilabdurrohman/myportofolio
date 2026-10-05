@@ -35,17 +35,17 @@
                 </div>
                 <!-- Loading State -->
                 <div id="loading" class="empty-state hide">
-                    <p>Memuat projects...</p>
+                    <p>Loading projects...</p>
                 </div>
 
                 <!-- Error State -->
                 <div id="error" class="empty-state hide">
-                    <p>Gagal memuat data projects. Silakan coba lagi.</p>
+                    <p>Failed to load projects. Please try again.</p>
                 </div>
 
                 <!-- Empty State -->
                 <div id="empty" class="empty-state hide">
-                    <p>Belum ada proyek yang ditambahkan atau ditemukan.</p>
+                    <p>No projects have been added or found.</p>
                 </div>
 
                 <!-- Project Grid -->
@@ -127,6 +127,12 @@
                     projectId
                 );
 
+            const starAjaxUrl = "{% url 'main:toggle_project_star_ajax' '00000000-0000-0000-0000-000000000000' %}"
+                .replace(
+                    '00000000-0000-0000-0000-000000000000',
+                    projectId
+                );
+
             const updateUrl = "{% url 'main:update_project' '00000000-0000-0000-0000-000000000000' %}"
                 .replace(
                     '00000000-0000-0000-0000-000000000000',
@@ -141,8 +147,8 @@
                         {% csrf_token %}
                         <button type="submit"
                                 class="button button-danger"
-                                onclick="return confirm('Yakin ingin menghapus project ini?');">
-                            Hapus
+                                onclick="return confirm('Are you sure you want to delete this project?');">
+                            Delete
                         </button>
                     </form>
                 `
@@ -163,13 +169,14 @@
                 : "Star";
 
             const starTitle = project.star_count > 0
-                ? `Dibintangi oleh ${escapeHtml(project.starred_by_names)}`
-                : "Jadilah yang pertama memberi star";
+                ? `Starred by ${escapeHtml(project.starred_by_names)}`
+                : "Be the first to star";
 
             const starHtml = `
                 <form method="post"
                     action="${starUrl}"
-                    class="star-form">
+                    class="star-form"
+                    data-star-url="${starAjaxUrl}">
                     {% csrf_token %}
                     <button type="submit"
                             class="button button-star${isStarredClass}"
@@ -213,7 +220,7 @@
                                 ? editHtml
                                 : ''
                         }
-                        
+
                         ${deleteHtml}
                     </div>
                 </div>
@@ -231,9 +238,9 @@
 
             try {
                 displayPageSection({ showLoading: true });
-                
+
                 const url = searchQuery ? `${BASE_PROJECTS_ENDPOINT}?title=${encodeURIComponent(searchQuery)}` : BASE_PROJECTS_ENDPOINT;
-                
+
                 const response = await fetch(url, {
                     headers: { 'Accept': 'application/json' },
                     signal: projectsAbortController.signal,
@@ -301,6 +308,73 @@
             return cookieValue;
         }
 
+        // Mengirim star/unstar ke server
+        async function toggleProjectStar(form) {
+            const starAjaxUrl = form.dataset.starUrl;
+            const submitButton = form.querySelector('button[type="submit"]');
+
+            submitButton.disabled = true;
+
+            try {
+                const response = await fetch(starAjaxUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Accept': 'application/json',
+                    },
+                });
+
+                const result = await response.json().catch(() => ({}));
+
+                if (response.ok) {
+                    const starText = result.is_starred
+                        ? "Unstar"
+                        : "Star";
+
+                    submitButton.classList.toggle(
+                        'is-starred',
+                        result.is_starred
+                    );
+
+                    submitButton.innerHTML = `
+                        <span aria-hidden="true">★</span>
+                        ${starText}
+                        <span class="star-count">
+                            ${escapeHtml(result.star_count)}
+                        </span>
+                    `;
+
+                    submitButton.title = result.star_count > 0
+                        ? "Starred"
+                        : "Be the first to star";
+                } else {
+                    showToast(
+                        'Failed to update star',
+                        result.message || `An error occurred (status ${response.status}).`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                console.error('Error updating project star:', error);
+                showToast(
+                    'Failed to update star',
+                    'Unable to connect to the server. Please try again.',
+                    'error'
+                );
+            } finally {
+                submitButton.disabled = false;
+            }
+        }
+
+        gridContainer.addEventListener('submit', function(event) {
+            const starForm = event.target.closest('.star-form');
+
+            if (!starForm) return;
+
+            event.preventDefault();
+            toggleProjectStar(starForm);
+        });
+
         // Mengirim data form ke server
         async function addProject(event) {
             event.preventDefault();
@@ -319,17 +393,17 @@
                 if (response.ok) {
                     projectForm.reset();
                     closeProjectModal();
-                    showToast('Berhasil', 'Proyek baru berhasil ditambahkan!', 'success');
+                    showToast('Success', 'Project added successfully!', 'success');
                     fetchProjects(searchInput.value.trim());
                 } else {
                     const errorMessages = result.errors
                         ? Object.values(result.errors).flat().map(error => error.message)
-                        : [result.message || `Terjadi kesalahan (status ${response.status}).`];
-                    showToast('Gagal menambahkan proyek', errorMessages.join(' '), 'error');
+                        : [result.message || `An error occurred (status ${response.status}).`];
+                    showToast('Failed to add project', errorMessages.join(' '), 'error');
                 }
             } catch (error) {
                 console.error('Error adding project:', error);
-                showToast('Gagal menambahkan proyek', 'Tidak dapat terhubung ke server. Silakan coba lagi.', 'error');
+                showToast('Failed to add project', 'Unable to connect to the server. Please try again.', 'error');
             } finally {
                 submitButton.disabled = false;
             }
