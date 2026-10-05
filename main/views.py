@@ -98,15 +98,34 @@ def create_skill(request):
     return render(request, "skill_form.html", context)
 
 # JSON skill
+# JSON skill
 def get_skills_json(request):
     name_query = request.GET.get("name", "").strip()
-    skills = Skill.objects.all()
+    skills = Skill.objects.prefetch_related("starred_by").all()
 
     if name_query:
         skills = skills.filter(name__icontains=name_query)
 
-    skills_json = serializers.serialize("json", skills, use_natural_foreign_keys=True)
-    return HttpResponse(skills_json, content_type="application/json")
+    # Konstruksi data JSON secara manual agar bisa menyisipkan logika Star
+    data = []
+    for skill in skills:
+        starred_users = skill.starred_by.all()
+        is_starred = request.user in starred_users if request.user.is_authenticated else False
+        starred_by_names = ", ".join([u.username for u in starred_users])
+
+        data.append({
+            "pk": str(skill.id),
+            "fields": {
+                "name": skill.name,
+                "url": skill.url,
+                "icon": skill.icon,
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+                "starred_by_names": starred_by_names,
+            }
+        })
+
+    return JsonResponse(data, safe=False)
 
 # Delete skill
 @login_required(login_url="/login/")
@@ -261,15 +280,38 @@ def create_experience(request):
     return render(request, "experience_form.html", context)
 
 # JSON experience
+# JSON experience
 def get_experience_json(request):
     title_query = request.GET.get("title", "").strip()
-    experiences = Experience.objects.all()
+    experiences = Experience.objects.prefetch_related("starred_by").all()
 
     if title_query:
         experiences = experiences.filter(title__icontains=title_query)
 
-    experiences_json = serializers.serialize("json", experiences, use_natural_foreign_keys=True)
-    return HttpResponse(experiences_json, content_type="application/json")
+    # Konstruksi data JSON secara manual agar bisa menyisipkan logika Star
+    data = []
+    for experience in experiences:
+        starred_users = experience.starred_by.all()
+        is_starred = request.user in starred_users if request.user.is_authenticated else False
+        starred_by_names = ", ".join([u.username for u in starred_users])
+
+        data.append({
+            "pk": str(experience.id),
+            "fields": {
+                "title": experience.title,
+                "organization": experience.organization,
+                "description": experience.description,
+                "category": experience.category,
+                "started_at": experience.started_at,
+                "ended_at": experience.ended_at,
+                "thumbnail": experience.thumbnail,
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+                "starred_by_names": starred_by_names,
+            }
+        })
+
+    return JsonResponse(data, safe=False)
 
 # Delete experience
 @login_required(login_url="/login/")

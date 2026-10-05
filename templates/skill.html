@@ -60,7 +60,6 @@
         const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
         const IS_EDITOR = "{{ is_editor|yesno:'true,false' }}" === "true";
         const CAN_EDIT = IS_SUPERUSER || IS_EDITOR;
-        const CURRENT_USERNAME = "{{ user.username|escapejs }}";
         let skillsAbortController;
 
         // Elemen DOM
@@ -89,26 +88,6 @@
                 .replaceAll('>', '&gt;')
                 .replaceAll('"', '&quot;')
                 .replaceAll("'", '&#39;');
-        }
-
-        // Mengambil informasi star dari data JSON
-        function getStarInformation(starredBy) {
-            const users = Array.isArray(starredBy) ? starredBy : [];
-
-            const names = users.map(user => {
-                if (Array.isArray(user)) {
-                    return String(user[0]);
-                }
-                return String(user);
-            });
-
-            const isStarred = CURRENT_USERNAME !== '' && names.includes(CURRENT_USERNAME);
-
-            return {
-                count: users.length,
-                names: names,
-                isStarred: isStarred,
-            };
         }
 
         // Membuat elemen card skill
@@ -158,14 +137,12 @@
                 </a>
             `;
 
-            const starInformation = getStarInformation(skill.starred_by);
-
-            const isStarredClass = starInformation.isStarred
+            const isStarredClass = skill.is_starred
                 ? " is-skill-starred"
                 : "";
 
-            const starTitle = starInformation.count > 0
-                ? `Dibintangi oleh ${escapeHtml(starInformation.names.join(', '))}`
+            const starTitle = skill.star_count > 0
+                ? `Dibintangi oleh ${escapeHtml(skill.starred_by_names)}`
                 : "Jadilah yang pertama memberi star";
 
             const starHtml = `
@@ -178,7 +155,7 @@
                             title="${starTitle}">
                         <span aria-hidden="true">★</span>
                         <span class="skill-star-count">
-                            ${escapeHtml(starInformation.count)}
+                            ${escapeHtml(skill.star_count)}
                         </span>
                     </button>
                 </form>
