@@ -237,8 +237,8 @@ def delete_project(request, project_id):
 # Update project
 @login_required(login_url="/login/")
 def update_project(request, project_id):
-    if not request.user.is_superuser and not request.user.groups.filter(name="Editor").exists():
-            raise PermissionDenied
+    if not request.user.is_superuser:
+        raise PermissionDenied
     
     project = get_object_or_404(Project, pk=project_id)
 
@@ -279,7 +279,6 @@ def create_experience(request):
         }
     return render(request, "experience_form.html", context)
 
-# JSON experience
 # JSON experience
 def get_experience_json(request):
     title_query = request.GET.get("title", "").strip()
