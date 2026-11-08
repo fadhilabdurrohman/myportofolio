@@ -4,7 +4,6 @@ from rest_framework import serializers
 from main.models import Skill, Project, Experience
 
 class ProjectSerializer(serializers.ModelSerializer):
-    year = serializers.IntegerField(min_value=1900, max_value=2100)
     star_count = serializers.SerializerMethodField()
     is_starred = serializers.SerializerMethodField()
     starred_by_names = serializers.SerializerMethodField()
