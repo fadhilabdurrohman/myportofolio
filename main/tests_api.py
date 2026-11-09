@@ -305,6 +305,7 @@ class SkillAPITest(APITestCase):
 
         self.list_url = reverse("api:skill_list")
         self.detail_url = reverse("api:skill_detail", args=[self.skill.id])
+        self.star_url = reverse("api:skill_star", args=[self.skill.id])
 
         self.payload = {
             "name": "Django",
@@ -416,6 +417,106 @@ class SkillAPITest(APITestCase):
         self.assertFalse(Skill.objects.filter(pk=created.id).exists())
         self.assertTrue(Skill.objects.filter(pk=self.skill.id).exists())
 
+    # Test invalid input
+    def test_validation(self):
+        self.client.force_authenticate(user=self.owner)
+
+        invalid_values = [
+            ("name", "   "),
+            ("name", "<b></b>"),
+            ("icon", ""),
+            ("icon", "<i></i>"),
+            ("url", "javascript:alert(1)"),
+        ]
+
+        for field, value in invalid_values:
+            with self.subTest(field=field, value=value):
+                response = self.client.post(
+                    self.list_url,
+                    {**self.payload, field: value},
+                    format="json",
+                )
+
+                self.assertEqual(response.status_code, 400)
+                self.assertIn(field, response.data)
+                self.assertEqual(Skill.objects.count(), 1)
+
+    # Test cleaning of text fields
+    def test_text_fields_are_cleaned(self):
+        self.client.force_authenticate(user=self.owner)
+
+        response = self.client.post(
+            self.list_url,
+            {
+                **self.payload,
+                "name": "  <b>Django</b>  ",
+                "icon": "<span>django.svg</span>",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+
+        skill = Skill.objects.get(pk=response.data["id"])
+
+        self.assertEqual(skill.name, "Django")
+        self.assertEqual(skill.icon, "django.svg")
+
+    # Test that star fields cannot be set through the create endpoint
+    def test_computed_fields_are_read_only(self):
+        self.client.force_authenticate(user=self.owner)
+
+        response = self.client.post(
+            self.list_url,
+            {
+                **self.payload,
+                "star_count": 99,
+                "is_starred": True,
+                "starred_by_names": "forged",
+                "starred_by": [self.visitor.id],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["star_count"], 0)
+        self.assertFalse(response.data["is_starred"])
+        self.assertEqual(response.data["starred_by_names"], "")
+
+        created = Skill.objects.get(pk=response.data["id"])
+
+        self.assertFalse(created.starred_by.exists())
+
+    # Test star authentication and toggle
+    def test_star_requires_login_and_toggles(self):
+        response = self.client.post(self.star_url)
+
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(self.skill.starred_by.exists())
+
+        self.client.force_authenticate(user=self.visitor)
+
+        for is_starred, star_count in ((True, 1), (False, 0)):
+            with self.subTest(is_starred=is_starred):
+                response = self.client.post(
+                    self.star_url,
+                    {"user_id": self.owner.id},
+                    format="json",
+                )
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.data["is_starred"], is_starred)
+                self.assertEqual(response.data["star_count"], star_count)
+                self.assertEqual(
+                    response.data["starred_by_names"],
+                    self.visitor.username if is_starred else "",
+                )
+                self.assertEqual(self.skill.starred_by.count(), star_count)
+                self.assertEqual(
+                    self.skill.starred_by.filter(pk=self.visitor.pk).exists(),
+                    is_starred,
+                )
+
 
 class ExperienceAPITest(APITestCase):
     # Create test data
@@ -447,6 +548,7 @@ class ExperienceAPITest(APITestCase):
 
         self.list_url = reverse("api:experience_list")
         self.detail_url = reverse("api:experience_detail", args=[self.experience.id])
+        self.star_url = reverse("api:experience_star", args=[self.experience.id])
 
         self.payload = {
             "title": "Research Assistant",
@@ -562,3 +664,138 @@ class ExperienceAPITest(APITestCase):
         self.assertFalse(Experience.objects.filter(pk=created.id).exists())
         self.assertTrue(Experience.objects.filter(pk=self.experience.id).exists())
 
+    # Test invalid input
+    def test_validation(self):
+        self.client.force_authenticate(user=self.owner)
+
+        invalid_values = [
+            ("title", "   "),
+            ("title", "<b></b>"),
+            ("organization", "<i></i>"),
+            ("description", "<p></p>"),
+            ("category", "unknown"),
+            ("thumbnail", "invalid-url"),
+            ("started_at", "invalid-date"),
+            ("ended_at", "2026-01-01"),
+        ]
+
+        for field, value in invalid_values:
+            with self.subTest(field=field, value=value):
+                response = self.client.post(
+                    self.list_url,
+                    {**self.payload, field: value},
+                    format="json",
+                )
+
+                self.assertEqual(response.status_code, 400)
+                self.assertIn(field, response.data)
+                self.assertEqual(Experience.objects.count(), 1)
+
+    # Test cleaning of text fields
+    def test_text_fields_are_cleaned(self):
+        self.client.force_authenticate(user=self.owner)
+
+        response = self.client.post(
+            self.list_url,
+            {
+                **self.payload,
+                "title": "  <b>Research Assistant</b>  ",
+                "organization": "<i>Universitas Indonesia</i>",
+                "description": "<p>Prepared research data.</p>",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+
+        experience = Experience.objects.get(pk=response.data["id"])
+
+        self.assertEqual(experience.title, "Research Assistant")
+        self.assertEqual(experience.organization, "Universitas Indonesia")
+        self.assertEqual(experience.description, "Prepared research data.")
+
+    # Test partial date validation and clearing the end date
+    def test_patch_dates_respects_existing_end_date(self):
+        self.client.force_authenticate(user=self.owner)
+
+        self.experience.ended_at = "2026-02-01"
+        self.experience.save(update_fields=["ended_at"])
+        before = Experience.objects.values().get(pk=self.experience.id)
+
+        response = self.client.patch(
+            self.detail_url,
+            {"started_at": "2026-03-01"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("ended_at", response.data)
+        self.assertEqual(Experience.objects.values().get(pk=self.experience.id), before)
+
+        response = self.client.patch(
+            self.detail_url,
+            {"started_at": "2026-03-01", "ended_at": None},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.experience.refresh_from_db()
+
+        self.assertEqual(self.experience.started_at.isoformat(), "2026-03-01")
+        self.assertIsNone(self.experience.ended_at)
+
+    # Test that star fields cannot be set through the create endpoint
+    def test_computed_fields_are_read_only(self):
+        self.client.force_authenticate(user=self.owner)
+
+        response = self.client.post(
+            self.list_url,
+            {
+                **self.payload,
+                "star_count": 99,
+                "is_starred": True,
+                "starred_by_names": "forged",
+                "starred_by": [self.visitor.id],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["star_count"], 0)
+        self.assertFalse(response.data["is_starred"])
+        self.assertEqual(response.data["starred_by_names"], "")
+
+        created = Experience.objects.get(pk=response.data["id"])
+
+        self.assertFalse(created.starred_by.exists())
+
+    # Test star authentication and toggle
+    def test_star_requires_login_and_toggles(self):
+        response = self.client.post(self.star_url)
+
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(self.experience.starred_by.exists())
+
+        self.client.force_authenticate(user=self.visitor)
+
+        for is_starred, star_count in ((True, 1), (False, 0)):
+            with self.subTest(is_starred=is_starred):
+                response = self.client.post(
+                    self.star_url,
+                    {"user_id": self.owner.id},
+                    format="json",
+                )
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.data["is_starred"], is_starred)
+                self.assertEqual(response.data["star_count"], star_count)
+                self.assertEqual(
+                    response.data["starred_by_names"],
+                    self.visitor.username if is_starred else "",
+                )
+                self.assertEqual(self.experience.starred_by.count(), star_count)
+                self.assertEqual(
+                    self.experience.starred_by.filter(pk=self.visitor.pk).exists(),
+                    is_starred,
+                )
