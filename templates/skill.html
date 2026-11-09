@@ -147,6 +147,7 @@
 
             const listElement = document.createElement('li');
             listElement.className = 'skill-item';
+            listElement.dataset.skillId = skillId;
 
             const deleteUrl = "{% url 'main:delete_skill' '00000000-0000-0000-0000-000000000000' %}"
                 .replace(
@@ -154,7 +155,7 @@
                     skillId
                 );
 
-            const deleteAjaxUrl = "{% url 'main:delete_skill_ajax' '00000000-0000-0000-0000-000000000000' %}"
+            const deleteAjaxUrl = "{% url 'api:skill_detail' '00000000-0000-0000-0000-000000000000' %}"
                 .replace(
                     '00000000-0000-0000-0000-000000000000',
                     skillId
@@ -166,7 +167,7 @@
                     skillId
                 );
 
-            const starAjaxUrl = "{% url 'main:toggle_skill_star_ajax' '00000000-0000-0000-0000-000000000000' %}"
+            const starAjaxUrl = "{% url 'api:skill_star' '00000000-0000-0000-0000-000000000000' %}"
                 .replace(
                     '00000000-0000-0000-0000-000000000000',
                     skillId
@@ -178,7 +179,7 @@
                     skillId
                 );
 
-            const updateAjaxUrl = "{% url 'main:update_skill_ajax' '00000000-0000-0000-0000-000000000000' %}"
+            const updateAjaxUrl = "{% url 'api:skill_detail' '00000000-0000-0000-0000-000000000000' %}"
                 .replace(
                     '00000000-0000-0000-0000-000000000000',
                     skillId
@@ -332,7 +333,7 @@
             document.getElementById("add-skill-modal").hidePopover();
         }
 
-        const CREATE_SKILL_ENDPOINT = "{% url 'main:create_skill_ajax' %}";
+        const CREATE_SKILL_ENDPOINT = BASE_SKILLS_ENDPOINT;
         const skillForm = document.getElementById('skill-form');
         const openSkillModalButton = document.getElementById('open-skill-modal');
 
@@ -357,6 +358,24 @@
                 }
             }
             return cookieValue;
+        }
+
+        function getSkillPayload(form) {
+            const formData = new FormData(form);
+
+            return {
+                name: formData.get('name'),
+                icon: formData.get('icon'),
+                url: formData.get('url'),
+            };
+        }
+
+        function apiErrorMessage(data, status) {
+            const errorMessages = Object.values(data)
+                .flat()
+                .filter(value => typeof value === 'string');
+
+            return errorMessages.join(' ') || `An error occurred (status ${status}).`;
         }
 
         const editSkillModal = document.getElementById('edit-skill-modal');
@@ -395,28 +414,23 @@
 
             try {
                 const response = await fetch(editSkillForm.dataset.updateUrl, {
-                    method: 'POST',
+                    method: 'PATCH',
                     headers: {
                         'X-CSRFToken': getCookie('csrftoken'),
                         'Accept': 'application/json',
+                        'Content-Type': 'application/json',
                     },
-                    body: new FormData(editSkillForm),
+                    body: JSON.stringify(getSkillPayload(editSkillForm)),
                 });
 
                 const result = await response.json().catch(() => ({}));
 
                 if (response.ok) {
-                    const updatedItem = result.item;
-                    const updatedSkill = {
-                        ...updatedItem.fields,
-                        id: updatedItem.pk,
-                    };
-
-                    skillDataById.set(String(updatedSkill.id), updatedSkill);
+                    skillDataById.set(String(result.id), result);
 
                     if (pendingSkillEditCard) {
                         pendingSkillEditCard.replaceWith(
-                            buildSkillCardElement(updatedSkill)
+                            buildSkillCardElement(result)
                         );
                     }
 
@@ -429,13 +443,9 @@
                         'success'
                     );
                 } else {
-                    const errorMessages = result.errors
-                        ? Object.values(result.errors).flat().map(error => error.message)
-                        : [result.message || `An error occurred (status ${response.status}).`];
-
                     showToast(
                         'Failed to update skill',
-                        errorMessages.join(' '),
+                        apiErrorMessage(result, response.status),
                         'error'
                     );
                 }
@@ -486,6 +496,7 @@
                     );
 
                     starCount.textContent = result.star_count;
+                    skillDataById.set(String(result.id), result);
 
                     submitButton.title = result.star_count > 0
                         ? "Starred"
@@ -493,7 +504,7 @@
                 } else {
                     showToast(
                         'Failed to update star',
-                        result.message || `An error occurred (status ${response.status}).`,
+                        apiErrorMessage(result, response.status),
                         'error'
                     );
                 }
@@ -520,16 +531,19 @@
 
             try {
                 const response = await fetch(deleteAjaxUrl, {
-                    method: 'POST',
+                    method: 'DELETE',
                     headers: {
                         'X-CSRFToken': getCookie('csrftoken'),
                         'Accept': 'application/json',
                     },
                 });
 
-                const result = await response.json().catch(() => ({}));
+                const result = response.status === 204
+                    ? {}
+                    : await response.json().catch(() => ({}));
 
                 if (response.ok) {
+                    skillDataById.delete(skillCard.dataset.skillId);
                     skillCard.remove();
                     showToast('Success', 'Skill deleted successfully!', 'success');
 
@@ -539,7 +553,7 @@
                 } else {
                     showToast(
                         'Failed to delete skill',
-                        result.message || `An error occurred (status ${response.status}).`,
+                        apiErrorMessage(result, response.status),
                         'error'
                     );
                 }
@@ -600,8 +614,12 @@
             try {
                 const response = await fetch(CREATE_SKILL_ENDPOINT, {
                     method: 'POST',
-                    headers: { 'X-CSRFToken': getCookie('csrftoken') },
-                    body: new FormData(skillForm),
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(getSkillPayload(skillForm)),
                 });
                 const result = await response.json().catch(() => ({}));
 
@@ -611,10 +629,7 @@
                     showToast('Success', 'Skill added successfully!', 'success');
                     fetchSkills(searchInput.value.trim());
                 } else {
-                    const errorMessages = result.errors
-                        ? Object.values(result.errors).flat().map(error => error.message)
-                        : [result.message || `An error occurred (status ${response.status}).`];
-                    showToast('Failed to add skill', errorMessages.join(' '), 'error');
+                    showToast('Failed to add skill', apiErrorMessage(result, response.status), 'error');
                 }
             } catch (error) {
                 console.error('Error adding skill:', error);

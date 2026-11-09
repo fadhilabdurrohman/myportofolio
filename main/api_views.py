@@ -204,3 +204,35 @@ def experience_detail(request, experience_id):
     serializer.save()
 
     return Response(serializer.data)
+
+# Skill star API
+@api_view(["POST"])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def skill_star(request, skill_id):
+    skill = get_object_or_404(Skill, pk=skill_id)
+
+    if skill.starred_by.filter(pk=request.user.pk).exists():
+        skill.starred_by.remove(request.user)
+    else:
+        skill.starred_by.add(request.user)
+
+    serializer = SkillSerializer(skill, context={"request": request})
+
+    return Response(serializer.data)
+
+# Experience star API
+@api_view(["POST"])
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def experience_star(request, experience_id):
+    experience = get_object_or_404(Experience, pk=experience_id)
+
+    if experience.starred_by.filter(pk=request.user.pk).exists():
+        experience.starred_by.remove(request.user)
+    else:
+        experience.starred_by.add(request.user)
+
+    serializer = ExperienceSerializer(experience, context={"request": request})
+
+    return Response(serializer.data)

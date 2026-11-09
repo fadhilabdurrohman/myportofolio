@@ -9,6 +9,8 @@ urlpatterns = [
     path("projects/<uuid:project_id>/star/", project_star, name="project_star"),
     path("skills/", skill_list, name="skill_list"),
     path("skills/<uuid:skill_id>/", skill_detail, name="skill_detail"),
+    path("skills/<uuid:skill_id>/star/", skill_star, name="skill_star"),
     path("experiences/", experience_list, name="experience_list"),
     path("experiences/<uuid:experience_id>/", experience_detail, name="experience_detail"),
+    path("experiences/<uuid:experience_id>/star/", experience_star, name="experience_star"),
 ]
