@@ -2,7 +2,7 @@ import uuid
 from django.contrib.auth.models import Group, User
 from django.urls import reverse
 from rest_framework.test import APIClient, APITestCase
-from main.models import Project
+from main.models import Skill, Project, Experience
 
 class ProjectAPITest(APITestCase):
     # Create test data
@@ -277,3 +277,288 @@ class ProjectAPITest(APITestCase):
             )
 
             self.assertEqual(response.status_code, expected)
+
+class SkillAPITest(APITestCase):
+    # Create test data
+    def setUp(self):
+        self.owner = User.objects.create_superuser(
+            username="owner",
+            password="test-password",
+            email="owner@example.com",
+        )
+
+        self.visitor = User.objects.create_user(
+            username="visitor",
+            password="test-password",
+        )
+
+        self.editor = User.objects.create_user(
+            username="editor",
+            password="test-password",
+        )
+        self.editor.groups.add(Group.objects.create(name="Editor"))
+
+        self.skill = Skill.objects.create(
+            name="Python",
+            icon="python.svg",
+        )
+
+        self.list_url = reverse("api:skill_list")
+        self.detail_url = reverse("api:skill_detail", args=[self.skill.id])
+
+        self.payload = {
+            "name": "Django",
+            "icon": "django.svg",
+            "url": "https://www.djangoproject.com/",
+        }
+
+    # Test read access for each role
+    def test_all_roles_can_read_list_and_detail(self):
+        roles = (
+            ("guest", None),
+            ("visitor", self.visitor),
+            ("editor", self.editor),
+            ("owner", self.owner),
+        )
+
+        for role, user in roles:
+            with self.subTest(role=role):
+                self.client.force_authenticate(user=user)
+
+                response = self.client.get(self.list_url)
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual([item["id"] for item in response.data], [str(self.skill.id)])
+
+                response = self.client.get(self.detail_url)
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.data["id"], str(self.skill.id))
+
+    # Test denied writes and verify database contents
+    def test_guest_and_visitor_cannot_write(self):
+        before = list(Skill.objects.order_by("pk").values())
+        requests = (
+            ("POST", self.client.post, self.list_url),
+            ("PUT", self.client.put, self.detail_url),
+            ("PATCH", self.client.patch, self.detail_url),
+            ("DELETE", self.client.delete, self.detail_url),
+        )
+
+        for role, user in (("guest", None), ("visitor", self.visitor)):
+            self.client.force_authenticate(user=user)
+
+            for method, send, url in requests:
+                with self.subTest(role=role, method=method):
+                    response = send(url, self.payload, format="json")
+
+                    self.assertEqual(response.status_code, 403)
+                    self.assertEqual(list(Skill.objects.order_by("pk").values()), before)
+
+    # Test PUT and PATCH for Editor and owner
+    def test_editor_and_owner_can_update(self):
+        for role, user in (("editor", self.editor), ("owner", self.owner)):
+            with self.subTest(role=role):
+                self.client.force_authenticate(user=user)
+
+                before = Skill.objects.values().get(pk=self.skill.id)
+                patch_data = {"name": f"{role} PATCH"}
+                response = self.client.patch(self.detail_url, patch_data, format="json")
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(
+                    Skill.objects.values().get(pk=self.skill.id),
+                    {**before, **patch_data},
+                )
+
+                put_data = {**self.payload, "name": f"{role} PUT"}
+                response = self.client.put(self.detail_url, put_data, format="json")
+
+                self.assertEqual(response.status_code, 200)
+
+                self.skill.refresh_from_db()
+
+                self.assertEqual(self.skill.name, put_data["name"])
+
+    # Test that Editor cannot add or remove records
+    def test_editor_cannot_create_or_delete(self):
+        self.client.force_authenticate(user=self.editor)
+        before = list(Skill.objects.order_by("pk").values())
+
+        response = self.client.post(self.list_url, self.payload, format="json")
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(list(Skill.objects.order_by("pk").values()), before)
+
+        response = self.client.delete(self.detail_url)
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(list(Skill.objects.order_by("pk").values()), before)
+
+    # Test owner create and delete access
+    def test_owner_can_create_and_delete(self):
+        self.client.force_authenticate(user=self.owner)
+
+        response = self.client.post(self.list_url, self.payload, format="json")
+
+        self.assertEqual(response.status_code, 201)
+
+        created = Skill.objects.get(pk=response.data["id"])
+
+        self.assertNotEqual(created.id, self.skill.id)
+        self.assertEqual(created.name, self.payload["name"])
+
+        detail_url = reverse("api:skill_detail", args=[created.id])
+        response = self.client.delete(detail_url)
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.content, b"")
+        self.assertFalse(Skill.objects.filter(pk=created.id).exists())
+        self.assertTrue(Skill.objects.filter(pk=self.skill.id).exists())
+
+
+class ExperienceAPITest(APITestCase):
+    # Create test data
+    def setUp(self):
+        self.owner = User.objects.create_superuser(
+            username="owner",
+            password="test-password",
+            email="owner@example.com",
+        )
+
+        self.visitor = User.objects.create_user(
+            username="visitor",
+            password="test-password",
+        )
+
+        self.editor = User.objects.create_user(
+            username="editor",
+            password="test-password",
+        )
+        self.editor.groups.add(Group.objects.create(name="Editor"))
+
+        self.experience = Experience.objects.create(
+            title="Teaching Assistant",
+            organization="Universitas Indonesia",
+            description="Helped students during lab sessions.",
+            category="part-time",
+            started_at="2026-01-01",
+        )
+
+        self.list_url = reverse("api:experience_list")
+        self.detail_url = reverse("api:experience_detail", args=[self.experience.id])
+
+        self.payload = {
+            "title": "Research Assistant",
+            "organization": "Universitas Indonesia",
+            "description": "Prepared research data.",
+            "category": "research",
+            "thumbnail": "",
+            "started_at": "2026-02-01",
+            "ended_at": None,
+        }
+
+    # Test read access for each role
+    def test_all_roles_can_read_list_and_detail(self):
+        roles = (
+            ("guest", None),
+            ("visitor", self.visitor),
+            ("editor", self.editor),
+            ("owner", self.owner),
+        )
+
+        for role, user in roles:
+            with self.subTest(role=role):
+                self.client.force_authenticate(user=user)
+
+                response = self.client.get(self.list_url)
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual([item["id"] for item in response.data], [str(self.experience.id)])
+
+                response = self.client.get(self.detail_url)
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.data["id"], str(self.experience.id))
+
+    # Test denied writes and verify database contents
+    def test_guest_and_visitor_cannot_write(self):
+        before = list(Experience.objects.order_by("pk").values())
+        requests = (
+            ("POST", self.client.post, self.list_url),
+            ("PUT", self.client.put, self.detail_url),
+            ("PATCH", self.client.patch, self.detail_url),
+            ("DELETE", self.client.delete, self.detail_url),
+        )
+
+        for role, user in (("guest", None), ("visitor", self.visitor)):
+            self.client.force_authenticate(user=user)
+
+            for method, send, url in requests:
+                with self.subTest(role=role, method=method):
+                    response = send(url, self.payload, format="json")
+
+                    self.assertEqual(response.status_code, 403)
+                    self.assertEqual(list(Experience.objects.order_by("pk").values()), before)
+
+    # Test PUT and PATCH for Editor and owner
+    def test_editor_and_owner_can_update(self):
+        for role, user in (("editor", self.editor), ("owner", self.owner)):
+            with self.subTest(role=role):
+                self.client.force_authenticate(user=user)
+
+                before = Experience.objects.values().get(pk=self.experience.id)
+                patch_data = {"title": f"{role} PATCH"}
+                response = self.client.patch(self.detail_url, patch_data, format="json")
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(
+                    Experience.objects.values().get(pk=self.experience.id),
+                    {**before, **patch_data},
+                )
+
+                put_data = {**self.payload, "title": f"{role} PUT"}
+                response = self.client.put(self.detail_url, put_data, format="json")
+
+                self.assertEqual(response.status_code, 200)
+
+                self.experience.refresh_from_db()
+
+                self.assertEqual(self.experience.title, put_data["title"])
+
+    # Test that Editor cannot add or remove records
+    def test_editor_cannot_create_or_delete(self):
+        self.client.force_authenticate(user=self.editor)
+        before = list(Experience.objects.order_by("pk").values())
+
+        response = self.client.post(self.list_url, self.payload, format="json")
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(list(Experience.objects.order_by("pk").values()), before)
+
+        response = self.client.delete(self.detail_url)
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(list(Experience.objects.order_by("pk").values()), before)
+
+    # Test owner create and delete access
+    def test_owner_can_create_and_delete(self):
+        self.client.force_authenticate(user=self.owner)
+
+        response = self.client.post(self.list_url, self.payload, format="json")
+
+        self.assertEqual(response.status_code, 201)
+
+        created = Experience.objects.get(pk=response.data["id"])
+
+        self.assertNotEqual(created.id, self.experience.id)
+        self.assertEqual(created.title, self.payload["title"])
+
+        detail_url = reverse("api:experience_detail", args=[created.id])
+        response = self.client.delete(detail_url)
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.content, b"")
+        self.assertFalse(Experience.objects.filter(pk=created.id).exists())
+        self.assertTrue(Experience.objects.filter(pk=self.experience.id).exists())
+
