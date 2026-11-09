@@ -2,7 +2,7 @@ import uuid
 from django.contrib.auth.models import Group, User
 from django.urls import reverse
 from rest_framework.test import APIClient, APITestCase
-from main.models import Skill, Project, Experience
+from main.models import Experience, Project, Skill
 
 class ProjectAPITest(APITestCase):
     # Create test data
@@ -278,6 +278,7 @@ class ProjectAPITest(APITestCase):
 
             self.assertEqual(response.status_code, expected)
 
+
 class SkillAPITest(APITestCase):
     # Create test data
     def setUp(self):
@@ -516,6 +517,50 @@ class SkillAPITest(APITestCase):
                     self.skill.starred_by.filter(pk=self.visitor.pk).exists(),
                     is_starred,
                 )
+
+    # Test session request without CSRF
+    def test_session_write_without_csrf_is_rejected(self):
+        client = APIClient(enforce_csrf_checks=True)
+
+        self.assertTrue(client.login(username="owner", password="test-password"))
+
+        response = client.post(self.list_url, self.payload, format="json")
+
+        self.assertEqual(response.status_code, 403)
+        self.assertIn("CSRF", response.data["detail"])
+        self.assertEqual(Skill.objects.count(), 1)
+
+    # Test session request with CSRF
+    def test_session_write_with_csrf_succeeds(self):
+        test_cases = [
+            ("owner", self.list_url, self.payload, 201),
+            ("visitor", self.star_url, {}, 200),
+        ]
+
+        for username, endpoint, payload, expected in test_cases:
+            with self.subTest(username=username):
+                client = APIClient(enforce_csrf_checks=True)
+
+                self.assertTrue(client.login(username=username, password="test-password"))
+
+                response = client.get(reverse("main:show_skill"))
+
+                self.assertEqual(response.status_code, 200)
+                self.assertIn("csrftoken", client.cookies)
+
+                csrf_token = client.cookies["csrftoken"].value
+
+                response = client.post(
+                    endpoint,
+                    payload,
+                    format="json",
+                    HTTP_X_CSRFTOKEN=csrf_token,
+                )
+
+                self.assertEqual(response.status_code, expected)
+
+        self.assertEqual(Skill.objects.count(), 2)
+        self.assertTrue(self.skill.starred_by.filter(pk=self.visitor.pk).exists())
 
 
 class ExperienceAPITest(APITestCase):
@@ -799,3 +844,47 @@ class ExperienceAPITest(APITestCase):
                     self.experience.starred_by.filter(pk=self.visitor.pk).exists(),
                     is_starred,
                 )
+
+    # Test session request without CSRF
+    def test_session_write_without_csrf_is_rejected(self):
+        client = APIClient(enforce_csrf_checks=True)
+
+        self.assertTrue(client.login(username="owner", password="test-password"))
+
+        response = client.post(self.list_url, self.payload, format="json")
+
+        self.assertEqual(response.status_code, 403)
+        self.assertIn("CSRF", response.data["detail"])
+        self.assertEqual(Experience.objects.count(), 1)
+
+    # Test session request with CSRF
+    def test_session_write_with_csrf_succeeds(self):
+        test_cases = [
+            ("owner", self.list_url, self.payload, 201),
+            ("visitor", self.star_url, {}, 200),
+        ]
+
+        for username, endpoint, payload, expected in test_cases:
+            with self.subTest(username=username):
+                client = APIClient(enforce_csrf_checks=True)
+
+                self.assertTrue(client.login(username=username, password="test-password"))
+
+                response = client.get(reverse("main:show_experience"))
+
+                self.assertEqual(response.status_code, 200)
+                self.assertIn("csrftoken", client.cookies)
+
+                csrf_token = client.cookies["csrftoken"].value
+
+                response = client.post(
+                    endpoint,
+                    payload,
+                    format="json",
+                    HTTP_X_CSRFTOKEN=csrf_token,
+                )
+
+                self.assertEqual(response.status_code, expected)
+
+        self.assertEqual(Experience.objects.count(), 2)
+        self.assertTrue(self.experience.starred_by.filter(pk=self.visitor.pk).exists())

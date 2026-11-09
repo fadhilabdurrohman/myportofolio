@@ -57,24 +57,42 @@ class MainTest(TestCase):
         self.assertEqual(self.experience.category, "part-time")
         self.assertTrue(self.experience.is_ongoing)
 
-    # Test experience page content
+    # Test experience page and API data
     def test_experience_page(self):
         response = self.client.get(reverse("main:show_experience"))
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "experience.html")
-        self.assertContains(response, self.experience.title)
-        self.assertContains(response, self.experience.description)
-        self.assertContains(response, "Part-Time")
-        self.assertContains(response, "Jul 2026 - Present")
+        self.assertContains(response, "Experiences & Activities")
+        self.assertContains(response, reverse("api:experience_list"))
         self.assertContains(response, f'href="{reverse("main:show_main")}"')
+
+        response = self.client.get(reverse("api:experience_list"))
+
+        self.assertEqual(response.status_code, 200)
+
+        experience = response.json()[0]
+
+        self.assertEqual(experience["id"], str(self.experience.id))
+        self.assertEqual(experience["title"], self.experience.title)
+        self.assertEqual(experience["description"], self.experience.description)
+        self.assertEqual(experience["category"], self.experience.category)
+        self.assertEqual(experience["started_at"], self.experience.started_at.isoformat())
+        self.assertIsNone(experience["ended_at"])
 
     # Test experience page when no data exists
     def test_empty_experience_page(self):
         Experience.objects.all().delete()
+
         response = self.client.get(reverse("main:show_experience"))
 
-        self.assertContains(response, "No experience added yet.")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "No experiences have been added or found.")
+
+        response = self.client.get(reverse("api:experience_list"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), [])
 
     # Test Project model fields
     def test_project_model(self):
@@ -146,15 +164,26 @@ class MainTest(TestCase):
         self.assertEqual(self.skill.icon, "python.svg")
         self.assertEqual(self.skill.url, "https://www.python.org/")
 
-    # Test skill page content
+    # Test skill page and API data
     def test_skill_page(self):
         response = self.client.get(reverse("main:show_skill"))
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "skill.html")
-        self.assertContains(response, self.skill.name)
-        self.assertContains(response, self.skill.icon)
-        self.assertContains(response, self.skill.url)
+        self.assertContains(response, "My Skills")
+        self.assertContains(response, reverse("api:skill_list"))
+        self.assertContains(response, f'href="{reverse("main:show_main")}"')
+
+        response = self.client.get(reverse("api:skill_list"))
+
+        self.assertEqual(response.status_code, 200)
+
+        skill = response.json()[0]
+
+        self.assertEqual(skill["id"], str(self.skill.id))
+        self.assertEqual(skill["name"], self.skill.name)
+        self.assertEqual(skill["icon"], self.skill.icon)
+        self.assertEqual(skill["url"], self.skill.url)
 
     # Test displaying multiple skills
     def test_multiple_skills(self):
@@ -163,20 +192,34 @@ class MainTest(TestCase):
             icon="java.svg",
             url="https://www.java.com/",
         )
-        response = self.client.get(reverse("main:show_skill"))
 
-        self.assertContains(response, self.skill.name)
-        self.assertContains(response, my_skill.name)
-        self.assertContains(response, self.skill.icon)
-        self.assertContains(response, my_skill.icon)
+        response = self.client.get(reverse("api:skill_list"))
+
+        self.assertEqual(response.status_code, 200)
+
+        skills = {
+            item["id"]: item
+            for item in response.json()
+        }
+
+        for skill in (self.skill, my_skill):
+            self.assertEqual(skills[str(skill.id)]["name"], skill.name)
+            self.assertEqual(skills[str(skill.id)]["icon"], skill.icon)
+            self.assertEqual(skills[str(skill.id)]["url"], skill.url)
 
     # Test skill page when no data exists
     def test_empty_skill_page(self):
         Skill.objects.all().delete()
+
         response = self.client.get(reverse("main:show_skill"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "No skill added yet.")
+        self.assertContains(response, "No skills have been added or found.")
+
+        response = self.client.get(reverse("api:skill_list"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), [])
 
     # Test Education model fields and date range
     def test_education_model(self):
@@ -195,3 +238,4 @@ class MainTest(TestCase):
         self.assertContains(response, self.education.institution)
         self.assertContains(response, self.education.program)
         self.assertContains(response, self.education.date_range)
+        
