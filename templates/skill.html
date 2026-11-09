@@ -105,7 +105,7 @@
     {% endif %}
     <script>
         // Konfigurasi
-        const BASE_SKILLS_ENDPOINT = "{% url 'main:get_skills_json' %}";
+        const BASE_SKILLS_ENDPOINT = "{% url 'api:skill_list' %}";
         const SKILL_ICON_BASE = "{% static 'img/skills/' %}";
         const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
         const IS_EDITOR = "{{ is_editor|yesno:'true,false' }}" === "true";
@@ -142,9 +142,8 @@
         }
 
         // Membuat elemen card skill
-        function buildSkillCardElement(item) {
-            const skill = item.fields;
-            const skillId = item.pk;
+        function buildSkillCardElement(skill) {
+            const skillId = skill.id;
 
             const listElement = document.createElement('li');
             listElement.className = 'skill-item';
@@ -290,11 +289,8 @@
 
                 const skillData = await response.json();
                 skillDataById.clear();
-                skillData.forEach(item => {
-                    skillDataById.set(
-                        String(item.pk),
-                        item.fields
-                    );
+                skillData.forEach(skill => {
+                    skillDataById.set(String(skill.id), skill);
                 });
 
                 if (skillData.length === 0) {
@@ -411,15 +407,16 @@
 
                 if (response.ok) {
                     const updatedItem = result.item;
+                    const updatedSkill = {
+                        ...updatedItem.fields,
+                        id: updatedItem.pk,
+                    };
 
-                    skillDataById.set(
-                        String(updatedItem.pk),
-                        updatedItem.fields
-                    );
+                    skillDataById.set(String(updatedSkill.id), updatedSkill);
 
                     if (pendingSkillEditCard) {
                         pendingSkillEditCard.replaceWith(
-                            buildSkillCardElement(updatedItem)
+                            buildSkillCardElement(updatedSkill)
                         );
                     }
 
@@ -502,6 +499,7 @@
                 }
             } catch (error) {
                 console.error('Error updating skill star:', error);
+
                 showToast(
                     'Failed to update star',
                     'Unable to connect to the server. Please try again.',
@@ -547,6 +545,7 @@
                 }
             } catch (error) {
                 console.error('Error deleting skill:', error);
+
                 showToast(
                     'Failed to delete skill',
                     'Unable to connect to the server. Please try again.',
