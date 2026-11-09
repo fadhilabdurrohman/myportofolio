@@ -237,7 +237,7 @@ def delete_project(request, project_id):
 # Update project
 @login_required(login_url="/login/")
 def update_project(request, project_id):
-    if not request.user.is_superuser:
+    if not request.user.is_superuser and not request.user.groups.filter(name="Editor").exists():
         raise PermissionDenied
     
     project = get_object_or_404(Project, pk=project_id)
