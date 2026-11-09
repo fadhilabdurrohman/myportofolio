@@ -104,7 +104,7 @@
     {% endif %}
     <script>
         // Konfigurasi
-        const BASE_EXPERIENCES_ENDPOINT = "{% url 'main:get_experience_json' %}";
+        const BASE_EXPERIENCES_ENDPOINT = "{% url 'api:experience_list' %}";
         const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
         const IS_EDITOR = "{{ is_editor|yesno:'true,false' }}" === "true";
         const CAN_EDIT = IS_SUPERUSER || IS_EDITOR;
@@ -172,9 +172,8 @@
         }
 
         // Membuat elemen card experience
-        function buildExperienceCardElement(item) {
-            const experience = item.fields;
-            const experienceId = item.pk;
+        function buildExperienceCardElement(experience) {
+            const experienceId = experience.id;
 
             const articleElement = document.createElement('article');
             articleElement.className = 'experience-item';
@@ -343,11 +342,8 @@
 
                 const experienceData = await response.json();
                 experienceDataById.clear();
-                experienceData.forEach(item => {
-                    experienceDataById.set(
-                        String(item.pk),
-                        item.fields
-                    );
+                experienceData.forEach(experience => {
+                    experienceDataById.set(String(experience.id), experience);
                 });
 
                 if (experienceData.length === 0) {
@@ -468,15 +464,16 @@
 
                 if (response.ok) {
                     const updatedItem = result.item;
+                    const updatedExperience = {
+                        ...updatedItem.fields,
+                        id: updatedItem.pk,
+                    };
 
-                    experienceDataById.set(
-                        String(updatedItem.pk),
-                        updatedItem.fields
-                    );
+                    experienceDataById.set(String(updatedExperience.id), updatedExperience);
 
                     if (pendingExperienceEditCard) {
                         pendingExperienceEditCard.replaceWith(
-                            buildExperienceCardElement(updatedItem)
+                            buildExperienceCardElement(updatedExperience)
                         );
                     }
 
