@@ -177,6 +177,7 @@
 
             const articleElement = document.createElement('article');
             articleElement.className = 'experience-item';
+            articleElement.dataset.experienceId = experienceId;
 
             const imageHtml = experience.thumbnail
                 ? `<img src="${escapeHtml(experience.thumbnail)}"
@@ -194,7 +195,7 @@
                     experienceId
                 );
 
-            const deleteAjaxUrl = "{% url 'main:delete_experience_ajax' '00000000-0000-0000-0000-000000000000' %}"
+            const deleteAjaxUrl = "{% url 'api:experience_detail' '00000000-0000-0000-0000-000000000000' %}"
                 .replace(
                     '00000000-0000-0000-0000-000000000000',
                     experienceId
@@ -206,7 +207,7 @@
                     experienceId
                 );
 
-            const starAjaxUrl = "{% url 'main:toggle_experience_star_ajax' '00000000-0000-0000-0000-000000000000' %}"
+            const starAjaxUrl = "{% url 'api:experience_star' '00000000-0000-0000-0000-000000000000' %}"
                 .replace(
                     '00000000-0000-0000-0000-000000000000',
                     experienceId
@@ -218,7 +219,7 @@
                     experienceId
                 );
 
-            const updateAjaxUrl = "{% url 'main:update_experience_ajax' '00000000-0000-0000-0000-000000000000' %}"
+            const updateAjaxUrl = "{% url 'api:experience_detail' '00000000-0000-0000-0000-000000000000' %}"
                 .replace(
                     '00000000-0000-0000-0000-000000000000',
                     experienceId
@@ -385,7 +386,7 @@
             document.getElementById("add-experience-modal").hidePopover();
         }
 
-        const CREATE_EXPERIENCE_ENDPOINT = "{% url 'main:create_experience_ajax' %}";
+        const CREATE_EXPERIENCE_ENDPOINT = BASE_EXPERIENCES_ENDPOINT;
         const experienceForm = document.getElementById('experience-form');
         const openExperienceModalButton = document.getElementById('open-experience-modal');
 
@@ -410,6 +411,28 @@
                 }
             }
             return cookieValue;
+        }
+
+        function getExperiencePayload(form) {
+            const formData = new FormData(form);
+
+            return {
+                title: formData.get('title'),
+                organization: formData.get('organization'),
+                description: formData.get('description'),
+                category: formData.get('category'),
+                thumbnail: formData.get('thumbnail'),
+                started_at: formData.get('started_at'),
+                ended_at: formData.get('ended_at') || null,
+            };
+        }
+
+        function apiErrorMessage(data, status) {
+            const errorMessages = Object.values(data)
+                .flat()
+                .filter(value => typeof value === 'string');
+
+            return errorMessages.join(' ') || `An error occurred (status ${status}).`;
         }
 
         const editExperienceModal = document.getElementById('edit-experience-modal');
@@ -452,28 +475,23 @@
 
             try {
                 const response = await fetch(editExperienceForm.dataset.updateUrl, {
-                    method: 'POST',
+                    method: 'PATCH',
                     headers: {
                         'X-CSRFToken': getCookie('csrftoken'),
                         'Accept': 'application/json',
+                        'Content-Type': 'application/json',
                     },
-                    body: new FormData(editExperienceForm),
+                    body: JSON.stringify(getExperiencePayload(editExperienceForm)),
                 });
 
                 const result = await response.json().catch(() => ({}));
 
                 if (response.ok) {
-                    const updatedItem = result.item;
-                    const updatedExperience = {
-                        ...updatedItem.fields,
-                        id: updatedItem.pk,
-                    };
-
-                    experienceDataById.set(String(updatedExperience.id), updatedExperience);
+                    experienceDataById.set(String(result.id), result);
 
                     if (pendingExperienceEditCard) {
                         pendingExperienceEditCard.replaceWith(
-                            buildExperienceCardElement(updatedExperience)
+                            buildExperienceCardElement(result)
                         );
                     }
 
@@ -486,13 +504,9 @@
                         'success'
                     );
                 } else {
-                    const errorMessages = result.errors
-                        ? Object.values(result.errors).flat().map(error => error.message)
-                        : [result.message || `An error occurred (status ${response.status}).`];
-
                     showToast(
                         'Failed to update experience',
-                        errorMessages.join(' '),
+                        apiErrorMessage(result, response.status),
                         'error'
                     );
                 }
@@ -552,13 +566,15 @@
                         </span>
                     `;
 
+                    experienceDataById.set(String(result.id), result);
+
                     submitButton.title = result.star_count > 0
                         ? "Starred"
                         : "Be the first to star";
                 } else {
                     showToast(
                         'Failed to update star',
-                        result.message || `An error occurred (status ${response.status}).`,
+                        apiErrorMessage(result, response.status),
                         'error'
                     );
                 }
@@ -584,16 +600,19 @@
 
             try {
                 const response = await fetch(deleteAjaxUrl, {
-                    method: 'POST',
+                    method: 'DELETE',
                     headers: {
                         'X-CSRFToken': getCookie('csrftoken'),
                         'Accept': 'application/json',
                     },
                 });
 
-                const result = await response.json().catch(() => ({}));
+                const result = response.status === 204
+                    ? {}
+                    : await response.json().catch(() => ({}));
 
                 if (response.ok) {
+                    experienceDataById.delete(experienceCard.dataset.experienceId);
                     experienceCard.remove();
                     showToast('Success', 'Experience deleted successfully!', 'success');
 
@@ -603,7 +622,7 @@
                 } else {
                     showToast(
                         'Failed to delete experience',
-                        result.message || `An error occurred (status ${response.status}).`,
+                        apiErrorMessage(result, response.status),
                         'error'
                     );
                 }
@@ -663,8 +682,12 @@
             try {
                 const response = await fetch(CREATE_EXPERIENCE_ENDPOINT, {
                     method: 'POST',
-                    headers: { 'X-CSRFToken': getCookie('csrftoken') },
-                    body: new FormData(experienceForm),
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(getExperiencePayload(experienceForm)),
                 });
                 const result = await response.json().catch(() => ({}));
 
@@ -674,10 +697,7 @@
                     showToast('Success', 'Experience added successfully!', 'success');
                     fetchExperiences(searchInput.value.trim());
                 } else {
-                    const errorMessages = result.errors
-                        ? Object.values(result.errors).flat().map(error => error.message)
-                        : [result.message || `An error occurred (status ${response.status}).`];
-                    showToast('Failed to add experience', errorMessages.join(' '), 'error');
+                    showToast('Failed to add experience', apiErrorMessage(result, response.status), 'error');
                 }
             } catch (error) {
                 console.error('Error adding experience:', error);
